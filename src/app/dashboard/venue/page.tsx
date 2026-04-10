@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
-const GENRES = ['Rock', 'Pop', 'Hip Hop', 'Country', 'Jazz', 'Metal', 'Folk', 'Electronic', 'R&B', 'Punk', 'Indie', 'Blues']
-
 const UTAH_CITIES = [
   // Salt Lake County
   'Salt Lake City', 'Murray', 'Sandy', 'South Jordan', 'West Jordan',
@@ -23,7 +21,7 @@ const UTAH_CITIES = [
   'Park City', 'St. George', 'Cedar City', 'Moab', 'Heber City',
 ]
 
-export default function BandProfilePage() {
+export default function VenueProfilePage() {
   const supabase = createClient()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -35,8 +33,9 @@ export default function BandProfilePage() {
   const [bio, setBio] = useState('')
   const [website, setWebsite] = useState('')
   const [instagram, setInstagram] = useState('')
+  const [address, setAddress] = useState('')
   const [city, setCity] = useState('')
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([])
+  const [capacity, setCapacity] = useState('')
 
   useEffect(() => {
     async function loadProfile() {
@@ -49,13 +48,13 @@ export default function BandProfilePage() {
         .eq('id', user.id)
         .single()
 
-      if (profile?.account_type !== 'band') {
+      if (profile?.account_type !== 'venue') {
         router.push('/dashboard')
         return
       }
 
-      const { data: band } = await supabase
-        .from('bands')
+      const { data: venue } = await supabase
+        .from('venues')
         .select('*')
         .eq('profile_id', user.id)
         .single()
@@ -64,18 +63,13 @@ export default function BandProfilePage() {
       setBio(profile.bio || '')
       setWebsite(profile.website || '')
       setInstagram(profile.instagram || '')
-      setCity(band?.city || '')
-      setSelectedGenres(band?.genres || [])
+      setAddress(venue?.address || '')
+      setCity(venue?.city || '')
+      setCapacity(venue?.capacity?.toString() || '')
       setLoading(false)
     }
     loadProfile()
   }, [])
-
-  function toggleGenre(genre: string) {
-    setSelectedGenres(prev =>
-      prev.includes(genre) ? prev.filter(g => g !== genre) : [...prev, genre]
-    )
-  }
 
   async function handleSave() {
     setSaving(true)
@@ -90,13 +84,13 @@ export default function BandProfilePage() {
       .update({ display_name: displayName, bio, website, instagram })
       .eq('id', user.id)
 
-    const { error: bandError } = await supabase
-      .from('bands')
-      .update({ city, genres: selectedGenres })
+    const { error: venueError } = await supabase
+      .from('venues')
+      .update({ address, city, capacity: capacity ? parseInt(capacity) : null })
       .eq('profile_id', user.id)
 
-    if (profileError || bandError) {
-      setError(profileError?.message || bandError?.message || 'Save failed')
+    if (profileError || venueError) {
+      setError(profileError?.message || venueError?.message || 'Save failed')
     } else {
       setSuccess(true)
     }
@@ -113,12 +107,12 @@ export default function BandProfilePage() {
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-2xl mx-auto">
         <a href="/dashboard" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to dashboard</a>
-        <h1 className="text-3xl font-bold text-yellow-400 mb-1">Band Profile</h1>
-        <p className="text-gray-400 mb-8">How fans and venues will find you</p>
+        <h1 className="text-3xl font-bold text-yellow-400 mb-1">Venue Profile</h1>
+        <p className="text-gray-400 mb-8">How bands and fans will find you</p>
 
         <div className="space-y-5">
           <div>
-            <label className="text-gray-400 text-sm block mb-1">Band name</label>
+            <label className="text-gray-400 text-sm block mb-1">Venue name</label>
             <input
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
               value={displayName}
@@ -127,12 +121,22 @@ export default function BandProfilePage() {
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-1">Bio</label>
+            <label className="text-gray-400 text-sm block mb-1">About the venue</label>
             <textarea
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400 h-32 resize-none"
-              placeholder="Tell fans about your band..."
+              placeholder="Tell bands and fans about your space..."
               value={bio}
               onChange={e => setBio(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="text-gray-400 text-sm block mb-1">Address</label>
+            <input
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
+              placeholder="123 Main St"
+              value={address}
+              onChange={e => setAddress(e.target.value)}
             />
           </div>
 
@@ -151,29 +155,21 @@ export default function BandProfilePage() {
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-2">Genres</label>
-            <div className="flex flex-wrap gap-2">
-              {GENRES.map(genre => (
-                <button
-                  key={genre}
-                  onClick={() => toggleGenre(genre)}
-                  className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                    selectedGenres.includes(genre)
-                      ? 'bg-yellow-400 text-gray-950 font-medium'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                  }`}
-                >
-                  {genre}
-                </button>
-              ))}
-            </div>
+            <label className="text-gray-400 text-sm block mb-1">Capacity</label>
+            <input
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
+              placeholder="e.g. 250"
+              type="number"
+              value={capacity}
+              onChange={e => setCapacity(e.target.value)}
+            />
           </div>
 
           <div>
             <label className="text-gray-400 text-sm block mb-1">Website</label>
             <input
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
-              placeholder="https://yourband.com"
+              placeholder="https://yourvenue.com"
               value={website}
               onChange={e => setWebsite(e.target.value)}
             />
@@ -185,7 +181,7 @@ export default function BandProfilePage() {
               <span className="pl-4 text-gray-500">@</span>
               <input
                 className="flex-1 px-2 py-3 bg-transparent text-white placeholder-gray-500 focus:outline-none"
-                placeholder="yourbandname"
+                placeholder="yourvenuename"
                 value={instagram}
                 onChange={e => setInstagram(e.target.value)}
               />
@@ -193,14 +189,14 @@ export default function BandProfilePage() {
           </div>
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
-          {success && <p className="text-green-400 text-sm">Profile saved!</p>}
+          {success && <p className="text-green-400 text-sm">Venue saved!</p>}
 
           <button
             onClick={handleSave}
             disabled={saving}
             className="w-full py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save profile'}
+            {saving ? 'Saving...' : 'Save venue'}
           </button>
         </div>
       </div>
