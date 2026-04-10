@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const UTAH_CITIES = [
-  'Salt Lake City', 'Provo', 'Ogden', 'Logan', 'St. George', 'Moab', 'Park City',
+  'Salt Lake City', 'Provo', 'Ogden', 'Logan', 'St. George', 'Moab',
   'Murray', 'Sandy', 'Orem', 'Lehi', 'American Fork', 'Spanish Fork', 'Springville',
   'Payson', 'Saratoga Springs', 'Eagle Mountain', 'Alpine', 'Highland', 'Cedar Hills',
   'Pleasant Grove', 'Lindon', 'Riverton', 'Herriman', 'Draper', 'South Jordan',
@@ -153,8 +153,20 @@ export default function EventsPage() {
                     <div className="flex-1">
                       <h2 className="text-lg font-semibold">{event.title}</h2>
 
-                      {bands?.length > 0 && (
-                        <p className="text-yellow-400 text-sm mt-1">{bands.join(', ')}</p>
+                      {event.event_bands?.length > 0 && (
+                        <p className="text-sm mt-1">
+                          {event.event_bands.map((eb: any, i: number) => (
+                            <span key={eb.bands?.id}>
+                              <a
+                                href={`/bands/${eb.bands?.id}`}
+                                className="text-yellow-400 hover:underline"
+                              >
+                                {eb.bands?.profiles?.display_name}
+                              </a>
+                              {i < event.event_bands.length - 1 ? ', ' : ''}
+                            </span>
+                          ))}
+                        </p>
                       )}
 
                       {event.description && (
@@ -163,7 +175,9 @@ export default function EventsPage() {
 
                       <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-500">
                         {event.venues && (
-                          <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
+                          <a href={`/venues/${event.venues.id}`} className="hover:text-yellow-400 transition-colors">
+                            📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}
+                          </a>
                         )}
                         <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
                         {event.is_free && <span className="text-green-400 font-medium">Free</span>}
