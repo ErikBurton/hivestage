@@ -21,6 +21,15 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single()
 
+  const { data: myEvents } = await supabase
+    .from('events')
+    .select(`
+      *,
+      venues ( id, city, profiles ( display_name ) )
+    `)
+    .eq('created_by', user.id)
+    .order('event_date', { ascending: true })
+
   return (
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-2xl mx-auto">
@@ -36,7 +45,7 @@ export default async function DashboardPage() {
           </form>
         </div>
 
-        <div className="grid gap-4">
+<div className="grid gap-4 mb-8">
           {profile?.account_type === 'band' && (
             <a href="/dashboard/band" className="bg-gray-900 rounded-2xl p-6 hover:bg-gray-800 transition-colors">
               <p className="font-semibold text-lg">🎸 Band Profile</p>
@@ -57,7 +66,48 @@ export default async function DashboardPage() {
             <p className="font-semibold text-lg">🔍 Browse Events</p>
             <p className="text-gray-400 text-sm mt-1">Discover live music across Utah</p>
           </a>
+          {profile?.is_admin && (
+            <a href="/admin" className="bg-yellow-400 rounded-2xl p-6 hover:bg-yellow-300 transition-colors">
+              <p className="font-semibold text-lg text-gray-950">⚙️ Admin Panel</p>
+              <p className="text-gray-700 text-sm mt-1">Manage events and users</p>
+            </a>
+          )}
         </div>
+
+        {myEvents && myEvents.length > 0 && (
+          <div>
+            <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">My Events</p>
+            <div className="space-y-3">
+              {myEvents.map((event: any) => {
+                const date = new Date(event.event_date)
+                return (
+                  <div key={event.id} className="bg-gray-900 rounded-2xl p-5 flex items-center justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="font-semibold">{event.title}</p>
+                      <p className="text-gray-500 text-sm mt-1">
+                        🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <a
+                        href={`/dashboard/events/${event.id}/edit`}
+                        className="px-3 py-1.5 text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                      >
+                        Edit
+                      </a>
+                      <a
+                        href={`/dashboard/events/${event.id}/delete`}
+                        className="px-3 py-1.5 text-sm bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors"
+                      >
+                        Delete
+                      </a>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   )
