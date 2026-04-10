@@ -25,7 +25,6 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
       )
     `)
     .eq('band_id', band.id)
-    .order('created_at', { ascending: false })
 
   const upcomingEvents = events
     ?.map((eb: any) => eb.events)
