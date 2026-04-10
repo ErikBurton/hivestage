@@ -1,7 +1,4 @@
-export const metadata = {
-  title: 'HiveStage — Live Music in Utah',
-  description: 'Discover live music events across Utah',
-}
+export const metadata = { title: 'Browse Events' }
 
 import { createClient } from '@/lib/supabase/server'
 
