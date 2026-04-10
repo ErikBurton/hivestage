@@ -1,3 +1,9 @@
+export const metadata = {
+  title: 'Dashboard — HiveStage',
+}
+
+// export const metadata = { title: 'Dashboard' }
+
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 

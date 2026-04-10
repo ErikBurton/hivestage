@@ -1,3 +1,8 @@
+export const metadata = {
+  title: 'HiveStage — Live Music in Utah',
+  description: 'Discover live music events across Utah',
+}
+
 import { createClient } from '@/lib/supabase/server'
 
 export default async function EventsPage() {
