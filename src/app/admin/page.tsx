@@ -14,7 +14,15 @@ async function deleteEvent(eventId: string) {
 async function deleteUser(userId: string) {
   'use server'
   const supabase = await createClient()
-  await supabase.from('profiles').delete().eq('id', userId)
+  
+  const { error } = await supabase.rpc('delete_user_as_admin', {
+    target_user_id: userId
+  })
+
+  if (error) {
+    console.error('Delete user error:', error)
+  }
+
   redirect('/admin')
 }
 
