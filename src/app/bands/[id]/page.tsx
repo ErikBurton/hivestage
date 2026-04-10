@@ -40,9 +40,13 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
         {/* Profile header */}
         <div className="bg-gray-900 rounded-2xl p-8 mb-6">
           <div className="flex items-start gap-6">
-            <div className="w-20 h-20 rounded-2xl bg-yellow-400 flex items-center justify-center text-gray-950 text-3xl font-bold shrink-0">
-              {band.profiles?.display_name?.[0]?.toUpperCase()}
-            </div>
+            <div className="w-20 h-20 rounded-2xl overflow-hidden bg-yellow-400 flex items-center justify-center text-gray-950 text-3xl font-bold shrink-0">
+                {band.profiles?.avatar_url ? (
+                    <img src={band.profiles.avatar_url} alt={band.profiles.display_name} className="w-full h-full object-cover" />
+                ) : (
+                    band.profiles?.display_name?.[0]?.toUpperCase()
+                )}
+                </div>
             <div className="flex-1">
               <h1 className="text-3xl font-bold">{band.profiles?.display_name}</h1>
               {band.city && <p className="text-gray-400 mt-1">📍 {band.city}, Utah</p>}

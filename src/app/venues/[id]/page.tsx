@@ -39,8 +39,12 @@ export default async function VenueProfilePage({ params }: { params: Promise<{ i
         {/* Profile header */}
         <div className="bg-gray-900 rounded-2xl p-8 mb-6">
           <div className="flex items-start gap-6">
-            <div className="w-20 h-20 rounded-2xl bg-yellow-400 flex items-center justify-center text-gray-950 text-3xl font-bold shrink-0">
-              {venue.profiles?.display_name?.[0]?.toUpperCase()}
+            <div className="w-20 h-20 rounded-2xl overflow-hidden bg-yellow-400 flex items-center justify-center text-gray-950 text-3xl font-bold shrink-0">
+            {venue.profiles?.avatar_url ? (
+                <img src={venue.profiles.avatar_url} alt={venue.profiles.display_name} className="w-full h-full object-cover" />
+            ) : (
+                venue.profiles?.display_name?.[0]?.toUpperCase()
+            )}
             </div>
             <div className="flex-1">
               <h1 className="text-3xl font-bold">{venue.profiles?.display_name}</h1>

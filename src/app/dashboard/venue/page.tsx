@@ -1,31 +1,26 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 const UTAH_CITIES = [
-  // Salt Lake County
-  'Salt Lake City', 'Murray', 'Sandy', 'South Jordan', 'West Jordan',
-  'Riverton', 'Herriman', 'Draper', 'Midvale', 'West Valley City',
-  'Taylorsville', 'Holladay', 'Cottonwood Heights', 'Millcreek',
-  // Utah County
-  'Provo', 'Orem', 'Lehi', 'American Fork', 'Spanish Fork',
-  'Springville', 'Payson', 'Saratoga Springs', 'Eagle Mountain',
-  'Alpine', 'Highland', 'Cedar Hills', 'Pleasant Grove', 'Lindon',
-  // Weber / Davis County
-  'Ogden', 'Roy', 'Layton', 'Clearfield', 'Bountiful',
-  'North Salt Lake', 'Woods Cross', 'Kaysville', 'Farmington',
-  // Cache County
-  'Logan', 'North Logan', 'Hyde Park', 'Smithfield',
-  // Other Utah
-  'Park City', 'St. George', 'Cedar City', 'Moab', 'Heber City',
+  'Salt Lake City', 'Provo', 'Ogden', 'Logan', 'St. George', 'Moab', 'Park City',
+  'Murray', 'Sandy', 'Orem', 'Lehi', 'American Fork', 'Spanish Fork', 'Springville',
+  'Payson', 'Saratoga Springs', 'Eagle Mountain', 'Alpine', 'Highland', 'Cedar Hills',
+  'Pleasant Grove', 'Lindon', 'Riverton', 'Herriman', 'Draper', 'South Jordan',
+  'West Jordan', 'Midvale', 'West Valley City', 'Taylorsville', 'Holladay',
+  'Cottonwood Heights', 'Millcreek', 'Roy', 'Layton', 'Clearfield', 'Bountiful',
+  'North Salt Lake', 'Woods Cross', 'Kaysville', 'Farmington', 'North Logan',
+  'Hyde Park', 'Smithfield', 'Cedar City', 'Heber City',
 ]
 
 export default function VenueProfilePage() {
   const supabase = createClient()
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
@@ -36,6 +31,7 @@ export default function VenueProfilePage() {
   const [address, setAddress] = useState('')
   const [city, setCity] = useState('')
   const [capacity, setCapacity] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
 
   useEffect(() => {
     async function loadProfile() {
@@ -63,6 +59,7 @@ export default function VenueProfilePage() {
       setBio(profile.bio || '')
       setWebsite(profile.website || '')
       setInstagram(profile.instagram || '')
+      setAvatarUrl(profile.avatar_url || '')
       setAddress(venue?.address || '')
       setCity(venue?.city || '')
       setCapacity(venue?.capacity?.toString() || '')
@@ -70,6 +67,40 @@ export default function VenueProfilePage() {
     }
     loadProfile()
   }, [])
+
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const fileExt = file.name.split('.').pop()
+    const filePath = `${user.id}/avatar.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true })
+
+    if (uploadError) {
+      setError(uploadError.message)
+      setUploading(false)
+      return
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath)
+
+    await supabase
+      .from('profiles')
+      .update({ avatar_url: publicUrl })
+      .eq('id', user.id)
+
+    setAvatarUrl(publicUrl)
+    setUploading(false)
+  }
 
   async function handleSave() {
     setSaving(true)
@@ -111,6 +142,40 @@ export default function VenueProfilePage() {
         <p className="text-gray-400 mb-8">How bands and fans will find you</p>
 
         <div className="space-y-5">
+
+          {/* Avatar upload */}
+          <div className="flex items-center gap-6">
+            <div
+              className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-800 border-2 border-gray-700 cursor-pointer hover:border-yellow-400 transition-colors flex items-center justify-center"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-3xl font-bold text-yellow-400">
+                  {displayName?.[0]?.toUpperCase() || '?'}
+                </span>
+              )}
+            </div>
+            <div>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors text-sm disabled:opacity-50"
+              >
+                {uploading ? 'Uploading...' : 'Upload photo'}
+              </button>
+              <p className="text-gray-600 text-xs mt-1">JPG, PNG up to 5MB</p>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
+          </div>
+
           <div>
             <label className="text-gray-400 text-sm block mb-1">Venue name</label>
             <input
