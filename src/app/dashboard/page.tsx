@@ -1,7 +1,14 @@
-export const metadata = { title: 'Dashboard' }
-
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+
+export const metadata = { title: 'Dashboard' }
+
+async function logout() {
+  'use server'
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect('/login')
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -17,8 +24,17 @@ export default async function DashboardPage() {
   return (
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-yellow-400 mb-1">HiveStage</h1>
-        <p className="text-gray-500 text-sm mb-8">Welcome back, {profile?.display_name}</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-yellow-400">HiveStage</h1>
+            <p className="text-gray-500 text-sm">Welcome back, {profile?.display_name}</p>
+          </div>
+          <form action={logout}>
+            <button className="px-4 py-2 text-sm text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 rounded-lg transition-colors">
+              Log out
+            </button>
+          </form>
+        </div>
 
         <div className="grid gap-4">
           {profile?.account_type === 'band' && (
