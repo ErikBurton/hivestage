@@ -1,36 +1,53 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
+import './globals.css'
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+})
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
 
-export const metadata = {
+export const metadata: Metadata = {
   title: {
-    default: 'HiveStage',
+    default: 'HiveStage — Utah\'s Home for Live Music',
     template: '%s — HiveStage',
   },
-  description: 'Live music events across Utah',
+  description: 'Find local shows, discover new bands, and connect with venues across Utah. HiveStage is Utah\'s home for live music.',
+  keywords: ['Utah live music', 'Salt Lake City concerts', 'Utah bands', 'live music Utah', 'Utah venues', 'local music Utah'],
+  openGraph: {
+    title: 'HiveStage — Utah\'s Home for Live Music',
+    description: 'Find local shows, discover new bands, and connect with venues across Utah.',
+    url: 'https://www.hivestage.live',
+    siteName: 'HiveStage',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'HiveStage — Utah\'s Home for Live Music',
+    description: 'Find local shows, discover new bands, and connect with venues across Utah.',
+  },
+  metadataBase: new URL('https://www.hivestage.live'),
+  alternates: {
+    canonical: 'https://www.hivestage.live',
+  },
 }
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {children}
+      </body>
     </html>
-  );
+  )
 }
