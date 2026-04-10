@@ -33,14 +33,12 @@ export default function NewEventPage() {
 
       setAccountType(profile?.account_type || '')
 
-      // Load all venues for the dropdown
       const { data: venueList } = await supabase
         .from('venues')
         .select('id, profiles(display_name), city')
 
       setVenues(venueList || [])
 
-      // If user is a venue, pre-select their venue
       if (profile?.account_type === 'venue') {
         const { data: myVenue } = await supabase
           .from('venues')
@@ -90,7 +88,6 @@ export default function NewEventPage() {
       return
     }
 
-    // If band, link them to the event
     if (accountType === 'band') {
       const { data: band } = await supabase
         .from('bands')
@@ -124,8 +121,12 @@ export default function NewEventPage() {
 
         <div className="space-y-5">
           <div>
-            <label className="text-gray-400 text-sm block mb-1">Event name</label>
+            <label className="text-gray-400 text-sm block mb-1">
+              Event name
+              <span className="text-gray-600 text-xs ml-2">{title.length}/200</span>
+            </label>
             <input
+              maxLength={200}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
               placeholder="e.g. Standard DeViation live at Kilby Court"
               value={title}
@@ -134,8 +135,12 @@ export default function NewEventPage() {
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-1">Description</label>
+            <label className="text-gray-400 text-sm block mb-1">
+              Description
+              <span className="text-gray-600 text-xs ml-2">{description.length}/5000</span>
+            </label>
             <textarea
+              maxLength={5000}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400 h-32 resize-none"
               placeholder="Tell fans what to expect..."
               value={description}
@@ -183,6 +188,7 @@ export default function NewEventPage() {
           <div>
             <label className="text-gray-400 text-sm block mb-1">Ticket URL</label>
             <input
+              maxLength={500}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
               placeholder="https://tickets.com/your-show"
               value={ticketUrl}

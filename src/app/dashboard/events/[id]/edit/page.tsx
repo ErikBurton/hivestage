@@ -108,8 +108,12 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
 
         <div className="space-y-5">
           <div>
-            <label className="text-gray-400 text-sm block mb-1">Event name</label>
+            <label className="text-gray-400 text-sm block mb-1">
+              Event name
+              <span className="text-gray-600 text-xs ml-2">{title.length}/200</span>
+            </label>
             <input
+              maxLength={200}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
               value={title}
               onChange={e => setTitle(e.target.value)}
@@ -117,8 +121,12 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-1">Description</label>
+            <label className="text-gray-400 text-sm block mb-1">
+              Description
+              <span className="text-gray-600 text-xs ml-2">{description.length}/5000</span>
+            </label>
             <textarea
+              maxLength={5000}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400 h-32 resize-none"
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -165,6 +173,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
           <div>
             <label className="text-gray-400 text-sm block mb-1">Ticket URL</label>
             <input
+              maxLength={500}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
               placeholder="https://tickets.com/your-show"
               value={ticketUrl}

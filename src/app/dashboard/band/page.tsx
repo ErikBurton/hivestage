@@ -6,52 +6,14 @@ import { useRouter } from 'next/navigation'
 const GENRES = ['Rock', 'Pop', 'Hip Hop', 'Country', 'Jazz', 'Metal', 'Folk', 'Electronic', 'R&B', 'Punk', 'Indie', 'Blues']
 
 const UTAH_CITIES = [
-  'Alpine',
-  'American Fork',
-  'Bountiful',
-  'Cedar City',
-  'Cedar Hills',
-  'Clearfield',
-  'Cottonwood Heights',
-  'Draper',
-  'Eagle Mountain',
-  'Farmington',
-  'Heber City',
-  'Herriman',
-  'Highland',
-  'Holladay',
-  'Hyde Park',
-  'Kaysville',
-  'Layton',
-  'Lehi',
-  'Lindon',
-  'Logan',
-  'Midvale',
-  'Millcreek',
-  'Moab',
-  'Murray',
-  'North Logan',
-  'North Salt Lake',
-  'Ogden',
-  'Orem',
-  'Park City',
-  'Payson',
-  'Pleasant Grove',
-  'Provo',
-  'Riverton',
-  'Roy',
-  'Salt Lake City',
-  'Sandy',
-  'Saratoga Springs',
-  'Smithfield',
-  'South Jordan',
-  'Spanish Fork',
-  'Springville',
-  'St. George',
-  'Taylorsville',
-  'West Jordan',
-  'West Valley City',
-  'Woods Cross',
+  'Alpine', 'American Fork', 'Bountiful', 'Cedar City', 'Cedar Hills',
+  'Clearfield', 'Cottonwood Heights', 'Draper', 'Eagle Mountain', 'Farmington',
+  'Heber City', 'Herriman', 'Highland', 'Holladay', 'Hyde Park', 'Kaysville',
+  'Layton', 'Lehi', 'Lindon', 'Logan', 'Midvale', 'Millcreek', 'Moab', 'Murray',
+  'North Logan', 'North Salt Lake', 'Ogden', 'Orem', 'Park City', 'Payson',
+  'Pleasant Grove', 'Provo', 'Riverton', 'Roy', 'Salt Lake City', 'Sandy',
+  'Saratoga Springs', 'Smithfield', 'South Jordan', 'Spanish Fork', 'Springville',
+  'St. George', 'Taylorsville', 'West Jordan', 'West Valley City', 'Woods Cross',
 ]
 
 export default function BandProfilePage() {
@@ -109,6 +71,11 @@ export default function BandProfilePage() {
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image must be under 5MB')
+      return
+    }
 
     setUploading(true)
     const { data: { user } } = await supabase.auth.getUser()
@@ -221,8 +188,12 @@ export default function BandProfilePage() {
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-1">Band name</label>
+            <label className="text-gray-400 text-sm block mb-1">
+              Band name
+              <span className="text-gray-600 text-xs ml-2">{displayName.length}/100</span>
+            </label>
             <input
+              maxLength={100}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
               value={displayName}
               onChange={e => setDisplayName(e.target.value)}
@@ -230,8 +201,12 @@ export default function BandProfilePage() {
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-1">Bio</label>
+            <label className="text-gray-400 text-sm block mb-1">
+              Bio
+              <span className="text-gray-600 text-xs ml-2">{bio.length}/2000</span>
+            </label>
             <textarea
+              maxLength={2000}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400 h-32 resize-none"
               placeholder="Tell fans about your band..."
               value={bio}
@@ -275,6 +250,7 @@ export default function BandProfilePage() {
           <div>
             <label className="text-gray-400 text-sm block mb-1">Website</label>
             <input
+              maxLength={500}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
               placeholder="https://yourband.com"
               value={website}
@@ -287,6 +263,7 @@ export default function BandProfilePage() {
             <div className="flex items-center bg-gray-800 border border-gray-700 rounded-lg focus-within:border-yellow-400">
               <span className="pl-4 text-gray-500">@</span>
               <input
+                maxLength={100}
                 className="flex-1 px-2 py-3 bg-transparent text-white placeholder-gray-500 focus:outline-none"
                 placeholder="yourbandname"
                 value={instagram}
