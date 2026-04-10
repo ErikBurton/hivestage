@@ -1,34 +1,85 @@
-export const metadata = { title: 'Browse Events' }
+'use client'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
-import { createClient } from '@/lib/supabase/server'
+const UTAH_CITIES = [
+  'Salt Lake City', 'Provo', 'Ogden', 'Logan', 'St. George', 'Moab', 'Park City',
+  'Murray', 'Sandy', 'Orem', 'Lehi', 'American Fork', 'Spanish Fork', 'Springville',
+  'Payson', 'Saratoga Springs', 'Eagle Mountain', 'Alpine', 'Highland', 'Cedar Hills',
+  'Pleasant Grove', 'Lindon', 'Riverton', 'Herriman', 'Draper', 'South Jordan',
+  'West Jordan', 'Midvale', 'West Valley City', 'Taylorsville', 'Holladay',
+  'Cottonwood Heights', 'Millcreek', 'Roy', 'Layton', 'Clearfield', 'Bountiful',
+  'North Salt Lake', 'Woods Cross', 'Kaysville', 'Farmington', 'North Logan',
+  'Hyde Park', 'Smithfield', 'Park City', 'Cedar City', 'Heber City',
+]
 
-export default async function EventsPage() {
-  const supabase = await createClient()
-  const now = new Date().toISOString()
+const GENRES = ['Rock', 'Pop', 'Hip Hop', 'Country', 'Jazz', 'Metal', 'Folk', 'Electronic', 'R&B', 'Punk', 'Indie', 'Blues']
 
-  const { data: events } = await supabase
-    .from('events')
-    .select(`
-      *,
-      venues (
-        id, city,
-        profiles ( display_name )
-      ),
-      event_bands (
-        bands (
-          id,
-          profiles ( display_name )
+export default function EventsPage() {
+  const supabase = createClient()
+  const [events, setEvents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [cityFilter, setCityFilter] = useState('')
+  const [genreFilter, setGenreFilter] = useState('')
+  const [freeOnly, setFreeOnly] = useState(false)
+
+  useEffect(() => {
+    loadEvents()
+  }, [cityFilter, genreFilter, freeOnly])
+
+  async function loadEvents() {
+    setLoading(true)
+
+    let query = supabase
+      .from('events')
+      .select(`
+        *,
+        venues ( id, city, profiles ( display_name ) ),
+        event_bands (
+          bands ( id, genres, profiles ( display_name ) )
+        )
+      `)
+      .order('event_date', { ascending: true })
+
+    if (freeOnly) {
+      query = query.eq('is_free', true)
+    }
+
+    if (cityFilter) {
+      query = query.eq('venues.city', cityFilter)
+    }
+
+    const { data } = await query
+    let filtered = data || []
+
+    // Genre filter (client-side since genres are on the band)
+    if (genreFilter) {
+      filtered = filtered.filter((event: any) =>
+        event.event_bands?.some((eb: any) =>
+          eb.bands?.genres?.includes(genreFilter)
         )
       )
-    `)
-    .order('event_date', { ascending: true })
+    }
+
+    // City filter fallback (client-side for joined data)
+    if (cityFilter) {
+      filtered = filtered.filter((event: any) =>
+        event.venues?.city === cityFilter
+      )
+    }
+
+    setEvents(filtered)
+    setLoading(false)
+  }
 
   return (
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-3xl mx-auto">
+
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-yellow-400">HiveStage</h1>
+            <a href="/" className="text-2xl font-bold text-yellow-400">HiveStage</a>
             <p className="text-gray-400 mt-1">Live music across Utah</p>
           </div>
           <a
@@ -39,7 +90,58 @@ export default async function EventsPage() {
           </a>
         </div>
 
-        {events && events.length > 0 ? (
+        {/* Filters */}
+        <div className="bg-gray-900 rounded-2xl p-4 mb-6 flex flex-wrap gap-3 items-center">
+
+          <select
+            className="flex-1 min-w-40 px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400 text-sm"
+            value={cityFilter}
+            onChange={e => setCityFilter(e.target.value)}
+          >
+            <option value="">All cities</option>
+            {UTAH_CITIES.map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+
+          <select
+            className="flex-1 min-w-40 px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400 text-sm"
+            value={genreFilter}
+            onChange={e => setGenreFilter(e.target.value)}
+          >
+            <option value="">All genres</option>
+            {GENRES.map(g => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => setFreeOnly(!freeOnly)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              freeOnly
+                ? 'bg-yellow-400 text-gray-950'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            Free only
+          </button>
+
+          {(cityFilter || genreFilter || freeOnly) && (
+            <button
+              onClick={() => { setCityFilter(''); setGenreFilter(''); setFreeOnly(false) }}
+              className="px-4 py-2 rounded-lg text-sm text-gray-500 hover:text-white transition-colors"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        {/* Events list */}
+        {loading ? (
+          <div className="text-center py-20">
+            <p className="text-gray-500">Loading events...</p>
+          </div>
+        ) : events.length > 0 ? (
           <div className="space-y-4">
             {events.map((event: any) => {
               const date = new Date(event.event_date)
@@ -64,7 +166,7 @@ export default async function EventsPage() {
                           <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
                         )}
                         <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
-                        {event.is_free && <span className="text-green-400">Free</span>}
+                        {event.is_free && <span className="text-green-400 font-medium">Free</span>}
                       </div>
                     </div>
 
@@ -85,18 +187,21 @@ export default async function EventsPage() {
           </div>
         ) : (
           <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">No upcoming events yet</p>
-            <p className="text-gray-600 text-sm mt-2">Be the first to post a show</p>
-            <a
-              href="/dashboard/events/new"
-              className="inline-block mt-6 px-6 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
-            >
-              Post an event
-            </a>
+            <p className="text-gray-500 text-lg">No events found</p>
+            <p className="text-gray-600 text-sm mt-2">
+              {cityFilter || genreFilter || freeOnly ? 'Try adjusting your filters' : 'Be the first to post a show'}
+            </p>
+            {!cityFilter && !genreFilter && !freeOnly && (
+              <a
+                href="/dashboard/events/new"
+                className="inline-block mt-6 px-6 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
+              >
+                Post an event
+              </a>
+            )}
           </div>
         )}
       </div>
     </main>
   )
 }
-
