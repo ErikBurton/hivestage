@@ -28,6 +28,7 @@ export default async function HomePage() {
           <a href="/events" className="text-gray-400 hover:text-white text-sm transition-colors">Browse events</a>
           <a href="/login" className="text-gray-400 hover:text-white text-sm transition-colors">Log in</a>
           <a href="/signup" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">Sign up free</a>
+          <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Browse bands</a>
         </div>
       </nav>
 

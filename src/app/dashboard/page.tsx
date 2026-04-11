@@ -66,6 +66,10 @@ export default async function DashboardPage() {
             <p className="font-semibold text-lg">🔍 Browse Events</p>
             <p className="text-gray-400 text-sm mt-1">Discover live music across Utah</p>
           </a>
+          <a href="/bands" className="bg-gray-900 rounded-2xl p-6 hover:bg-gray-800 transition-colors">
+            <p className="font-semibold text-lg">🎸 Browse Bands</p>
+            <p className="text-gray-400 text-sm mt-1">Discover Utah musicians</p>
+          </a>
           {profile?.is_admin && (
             <a href="/admin" className="bg-yellow-400 rounded-2xl p-6 hover:bg-yellow-300 transition-colors">
               <p className="font-semibold text-lg text-gray-950">⚙️ Admin Panel</p>
