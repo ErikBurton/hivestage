@@ -173,9 +173,17 @@ export default async function AdminPage() {
 
         {/* Venues */}
         <div className="mb-10">
-          <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">
-            Venues ({totalVenues})
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-gray-500 text-xs font-medium uppercase tracking-widest">
+              Venues ({totalVenues})
+            </p>
+            <a
+              href="/admin/venues/new"
+              className="px-4 py-2 text-sm bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
+            >
+              + Add venue
+            </a>
+          </div>
           {venues && venues.length > 0 ? (
             <div className="bg-gray-900 rounded-2xl overflow-hidden">
               <table className="w-full text-sm">
