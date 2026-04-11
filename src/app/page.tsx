@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import SearchHero from './SearchHero'
 
 export const metadata = {
   title: 'HiveStage — Utah\'s Home for Live Music',
@@ -25,22 +26,27 @@ export default async function HomePage() {
       <nav className="flex items-center justify-between px-8 py-5 border-b border-gray-800">
         <span className="text-2xl font-bold text-yellow-400">HiveStage</span>
         <div className="flex items-center gap-4">
-          <a href="/events" className="text-gray-400 hover:text-white text-sm transition-colors">Browse events</a>
+          <a href="/events" className="text-gray-400 hover:text-white text-sm transition-colors">Events</a>
+          <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Bands</a>
+          <a href="/venues" className="text-gray-400 hover:text-white text-sm transition-colors">Venues</a>
           <a href="/login" className="text-gray-400 hover:text-white text-sm transition-colors">Log in</a>
           <a href="/signup" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">Sign up free</a>
-          <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Browse bands</a>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="text-center px-8 py-24 max-w-3xl mx-auto">
+      <section className="text-center px-8 py-20 max-w-4xl mx-auto">
         <h1 className="text-5xl font-bold mb-4 leading-tight">
           Utah's home for <span className="text-yellow-400">live music</span>
         </h1>
         <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
-          Find local shows, discover new bands, and connect with venues across Utah — all in one place.
+          Find local shows, discover new bands, and connect with venues across Utah.
         </p>
-        <div className="flex gap-4 justify-center flex-wrap">
+
+        {/* Search bar */}
+        <SearchHero />
+
+        <div className="flex gap-4 justify-center flex-wrap mt-8">
           <a href="/events" className="px-8 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors">
             Browse events
           </a>

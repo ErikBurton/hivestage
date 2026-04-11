@@ -120,13 +120,13 @@ export default function EventsPage() {
             <a href="/" className="text-2xl font-bold text-yellow-400">HiveStage</a>
             <p className="text-gray-400 mt-1">Live music across Utah</p>
           </div>
-          <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Bands</a>
-          <a
-            href="/dashboard"
-            className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm"
-          >
-            Dashboard
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Bands</a>
+            <a href="/venues" className="text-gray-400 hover:text-white text-sm transition-colors">Venues</a>
+            <a href="/dashboard" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">
+              Dashboard
+            </a>
+          </div>
         </div>
 
         {/* Filters */}
