@@ -42,10 +42,7 @@ export default async function HomePage() {
         <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
           Find local shows, discover new bands, and connect with venues across Utah.
         </p>
-
-        {/* Search bar */}
         <SearchHero />
-
         <div className="flex gap-4 justify-center flex-wrap mt-8">
           <a href="/events" className="px-8 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors">
             Browse events
@@ -71,7 +68,7 @@ export default async function HomePage() {
         ))}
       </section>
 
-      {/* Upcoming shows preview */}
+      {/* Upcoming shows */}
       {events && events.length > 0 && (
         <section className="px-8 pb-20 max-w-4xl mx-auto">
           <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">Upcoming shows</p>
@@ -80,21 +77,32 @@ export default async function HomePage() {
               const date = new Date(event.event_date)
               const bands = event.event_bands?.map((eb: any) => eb.bands?.profiles?.display_name).filter(Boolean)
               return (
-                <div key={event.id} className="bg-gray-900 rounded-2xl p-5 border border-gray-800 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="font-semibold">{event.title}</p>
-                    {bands?.length > 0 && <p className="text-yellow-400 text-sm mt-1">{bands.join(', ')}</p>}
-                    <div className="flex gap-3 mt-2 text-sm text-gray-500 flex-wrap">
-                      {event.venues && <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>}
-                      <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                <div key={event.id} className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800">
+                  {event.cover_image_url && (
+                    <div className="relative w-full aspect-video">
+                      <img
+                        src={event.cover_image_url}
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
+                  )}
+                  <div className="p-5 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-semibold">{event.title}</p>
+                      {bands?.length > 0 && <p className="text-yellow-400 text-sm mt-1">{bands.join(', ')}</p>}
+                      <div className="flex gap-3 mt-2 text-sm text-gray-500 flex-wrap">
+                        {event.venues && <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>}
+                        <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                      </div>
+                    </div>
+                    {event.is_free
+                      ? <span className="shrink-0 text-green-400 text-xs font-semibold bg-green-950 px-3 py-1 rounded-full">Free</span>
+                      : event.ticket_url
+                        ? <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" className="shrink-0 px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">Tickets</a>
+                        : null
+                    }
                   </div>
-                  {event.is_free
-                    ? <span className="shrink-0 text-green-400 text-xs font-semibold bg-green-950 px-3 py-1 rounded-full">Free</span>
-                    : event.ticket_url
-                      ? <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" className="shrink-0 px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">Tickets</a>
-                      : null
-                  }
                 </div>
               )
             })}

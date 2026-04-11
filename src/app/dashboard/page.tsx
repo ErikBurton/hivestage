@@ -23,10 +23,7 @@ export default async function DashboardPage() {
 
   const { data: myEvents } = await supabase
     .from('events')
-    .select(`
-      *,
-      venues ( id, city, profiles ( display_name ) )
-    `)
+    .select(`*, venues ( id, city, profiles ( display_name ) )`)
     .eq('created_by', user.id)
     .order('event_date', { ascending: true })
 
@@ -45,7 +42,7 @@ export default async function DashboardPage() {
           </form>
         </div>
 
-<div className="grid gap-4 mb-8">
+        <div className="grid gap-4 mb-8">
           {profile?.account_type === 'band' && (
             <a href="/dashboard/band" className="bg-gray-900 rounded-2xl p-6 hover:bg-gray-800 transition-colors">
               <p className="font-semibold text-lg">🎸 Band Profile</p>
@@ -85,26 +82,27 @@ export default async function DashboardPage() {
               {myEvents.map((event: any) => {
                 const date = new Date(event.event_date)
                 return (
-                  <div key={event.id} className="bg-gray-900 rounded-2xl p-5 flex items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <p className="font-semibold">{event.title}</p>
-                      <p className="text-gray-500 text-sm mt-1">
-                        🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                      </p>
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      <a
-                        href={`/dashboard/events/${event.id}/edit`}
-                        className="px-3 py-1.5 text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        Edit
-                      </a>
-                      <a
-                        href={`/dashboard/events/${event.id}/delete`}
-                        className="px-3 py-1.5 text-sm bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors"
-                      >
-                        Delete
-                      </a>
+                  <div key={event.id} className="bg-gray-900 rounded-2xl overflow-hidden">
+                    {event.cover_image_url && (
+                      <div className="relative w-full aspect-video">
+                        <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="p-5 flex items-center justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="font-semibold">{event.title}</p>
+                        <p className="text-gray-500 text-sm mt-1">
+                          🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                        </p>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <a href={`/dashboard/events/${event.id}/edit`} className="px-3 py-1.5 text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">
+                          Edit
+                        </a>
+                        <a href={`/dashboard/events/${event.id}/delete`} className="px-3 py-1.5 text-sm bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors">
+                          Delete
+                        </a>
+                      </div>
                     </div>
                   </div>
                 )

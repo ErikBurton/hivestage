@@ -1,13 +1,15 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 export default function EditEventPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
   const router = useRouter()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -20,6 +22,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
   const [venues, setVenues] = useState<any[]>([])
   const [selectedVenue, setSelectedVenue] = useState('')
   const [eventId, setEventId] = useState('')
+  const [coverImageUrl, setCoverImageUrl] = useState('')
 
   useEffect(() => {
     async function load() {
@@ -38,7 +41,6 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
 
       setIsAdmin(profile?.is_admin || false)
 
-      // Fetch event — admins can edit any event
       const { data: event } = await supabase
         .from('events')
         .select('*')
@@ -47,7 +49,6 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
 
       if (!event) { router.push('/dashboard'); return }
 
-      // Non-admins can only edit their own events
       if (!profile?.is_admin && event.created_by !== user.id) {
         router.push('/dashboard')
         return
@@ -64,6 +65,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
       setTicketUrl(event.ticket_url || '')
       setIsFree(event.is_free || false)
       setSelectedVenue(event.venue_id || '')
+      setCoverImageUrl(event.cover_image_url || '')
 
       const { data: venueList } = await supabase
         .from('venues')
@@ -74,6 +76,40 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
     }
     load()
   }, [])
+
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image must be under 5MB')
+      return
+    }
+
+    setUploading(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const fileExt = file.name.split('.').pop()
+    const filePath = `${user.id}/${Date.now()}.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('event-covers')
+      .upload(filePath, file, { upsert: true })
+
+    if (uploadError) {
+      setError(uploadError.message)
+      setUploading(false)
+      return
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('event-covers')
+      .getPublicUrl(filePath)
+
+    setCoverImageUrl(publicUrl)
+    setUploading(false)
+  }
 
   async function handleSave() {
     setSaving(true)
@@ -96,12 +132,9 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
         venue_id: selectedVenue || null,
         ticket_url: ticketUrl || null,
         is_free: isFree,
+        cover_image_url: coverImageUrl || null,
       })
       .eq('id', eventId)
-
-    console.log('eventId:', eventId)
-    console.log('title:', title)
-    console.log('updateError:', updateError)
 
     if (updateError) {
       setError(updateError.message)
@@ -121,16 +154,51 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
   return (
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-2xl mx-auto">
-        <a
-          href={isAdmin ? '/admin' : '/dashboard'}
-          className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block"
-        >
+        <a href={isAdmin ? '/admin' : '/dashboard'} className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">
           ← Back to {isAdmin ? 'admin' : 'dashboard'}
         </a>
         <h1 className="text-3xl font-bold text-yellow-400 mb-1">Edit Event</h1>
         <p className="text-gray-400 mb-8">Update your show details</p>
 
         <div className="space-y-5">
+
+          {/* Cover image upload */}
+          <div>
+            <label className="text-gray-400 text-sm block mb-2">Event cover image</label>
+            <div
+              className="w-full rounded-2xl overflow-hidden bg-gray-800 border-2 border-dashed border-gray-700 hover:border-yellow-400 transition-colors cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {coverImageUrl ? (
+                <div className="relative w-full aspect-video">
+                  <img src={coverImageUrl} alt="Cover" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-32">
+                  <div className="text-center">
+                    <p className="text-gray-500 text-sm">{uploading ? 'Uploading...' : 'Click to upload a flyer or photo'}</p>
+                    <p className="text-gray-600 text-xs mt-1">JPG, PNG up to 5MB</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleCoverUpload}
+            />
+            {coverImageUrl && (
+              <button
+                onClick={() => setCoverImageUrl('')}
+                className="text-gray-500 hover:text-red-400 text-xs mt-2 transition-colors"
+              >
+                Remove image
+              </button>
+            )}
+          </div>
+
           <div>
             <label className="text-gray-400 text-sm block mb-1">
               Event name
@@ -219,7 +287,7 @@ export default function EditEventPage({ params }: { params: { id: string } }) {
 
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || uploading}
             className="w-full py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save changes'}
