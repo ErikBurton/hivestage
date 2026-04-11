@@ -7,7 +7,7 @@ async function logout() {
   'use server'
   const supabase = await createClient()
   await supabase.auth.signOut()
-  redirect('/login')
+  redirect('/')
 }
 
 export default async function DashboardPage() {
