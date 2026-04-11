@@ -12,7 +12,7 @@ export default async function LoginPage() {
       event_bands ( bands ( profiles ( display_name ) ) )
     `)
     .order('event_date', { ascending: true })
-    .limit(2)
+    .limit(5)
 
   return <LoginClient events={events || []} />
 }
