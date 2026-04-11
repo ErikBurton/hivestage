@@ -164,6 +164,13 @@ export default function SignupPage() {
               Already have an account?{' '}
               <a href="/login" className="text-yellow-400 hover:underline">Log in</a>
             </p>
+
+            <p className="text-center text-gray-600 text-xs">
+              By signing up you agree to our{' '}
+              <a href="/terms" className="text-gray-500 hover:text-yellow-400 transition-colors">Terms</a>
+              {' '}and{' '}
+              <a href="/privacy" className="text-gray-500 hover:text-yellow-400 transition-colors">Privacy Policy</a>
+            </p>
           </div>
         </div>
 
