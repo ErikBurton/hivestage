@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Nav from '@/components/Nav'
+import FollowButton from '@/components/FollowButton'
 
 export default async function BandProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -24,6 +25,11 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
     `)
     .eq('band_id', band.id)
 
+  const { count: followerCount } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('band_id', band.id)
+
   const upcomingEvents = eventBands
     ?.map((eb: any) => eb.events)
     .filter((e: any) => e && new Date(e.event_date) >= new Date())
@@ -45,8 +51,14 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
               )}
             </div>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold">{band.profiles?.display_name}</h1>
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="text-3xl font-bold">{band.profiles?.display_name}</h1>
+                <FollowButton bandId={band.id} />
+              </div>
               {band.city && <p className="text-gray-400 mt-1">📍 {band.city}, Utah</p>}
+              <p className="text-gray-500 text-sm mt-1">
+                {followerCount || 0} {followerCount === 1 ? 'follower' : 'followers'}
+              </p>
               {band.genres?.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {band.genres.map((g: string) => (
@@ -56,9 +68,11 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
               )}
             </div>
           </div>
+
           {band.profiles?.bio && (
             <p className="text-gray-300 mt-6 leading-relaxed">{band.profiles.bio}</p>
           )}
+
           <div className="flex gap-4 mt-6">
             {band.profiles?.website && (
               <a href={band.profiles.website} target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline text-sm">Website →</a>
@@ -75,7 +89,7 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
             {upcomingEvents.map((event: any) => {
               const date = new Date(event.event_date)
               return (
-                <div key={event.id} className="bg-gray-900 rounded-2xl overflow-hidden">
+                <a key={event.id} href={`/events/${event.id}`} className="bg-gray-900 rounded-2xl overflow-hidden hover:bg-gray-800 transition-colors block">
                   {event.cover_image_url && (
                     <div className="relative w-full aspect-video">
                       <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
@@ -94,11 +108,11 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
                     {event.is_free
                       ? <span className="shrink-0 text-green-400 text-xs font-semibold bg-green-950 px-3 py-1 rounded-full">Free</span>
                       : event.ticket_url
-                        ? <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" className="shrink-0 px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">Tickets</a>
+                        ? <span className="shrink-0 px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg text-sm">Tickets</span>
                         : null
                     }
                   </div>
-                </div>
+                </a>
               )
             })}
           </div>
