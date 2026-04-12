@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import SearchHero from './SearchHero'
+import Nav from '@/components/Nav'
 
 export const metadata = {
   title: 'HiveStage — Utah\'s Home for Live Music',
@@ -22,17 +23,7 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen bg-gray-950 text-white">
 
-      {/* Nav */}
-      <nav className="flex items-center justify-between px-8 py-5 border-b border-gray-800">
-        <span className="text-2xl font-bold text-yellow-400">HiveStage</span>
-        <div className="flex items-center gap-4">
-          <a href="/events" className="text-gray-400 hover:text-white text-sm transition-colors">Events</a>
-          <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Bands</a>
-          <a href="/venues" className="text-gray-400 hover:text-white text-sm transition-colors">Venues</a>
-          <a href="/login" className="text-gray-400 hover:text-white text-sm transition-colors">Log in</a>
-          <a href="/signup" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">Sign up free</a>
-        </div>
-      </nav>
+      <Nav />
 
       {/* Hero */}
       <section className="text-center px-8 py-20 max-w-4xl mx-auto">
