@@ -40,6 +40,18 @@ export default function SignupPage() {
       await supabase.from('venues').insert({ profile_id: data.user.id })
     }
 
+    // Send welcome email
+    try {
+      await fetch('/api/welcome-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: data.user.id }),
+      })
+    } catch (e) {
+      // Don't block signup if email fails
+      console.error('Welcome email failed:', e)
+    }
+
     router.push('/dashboard')
   }
 

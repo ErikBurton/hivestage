@@ -141,6 +141,17 @@ export default function NewEventPage() {
       }
     }
 
+    // Send notifications to followers
+    try {
+      await fetch('/api/event-notification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId: event.id }),
+      })
+    } catch (e) {
+      console.error('Notification failed:', e)
+    }
+
     router.push('/events')
   }
 
