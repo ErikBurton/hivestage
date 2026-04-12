@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { sendNewEventNotification } from '@/lib/emails'
 import { NextResponse } from 'next/server'
 
