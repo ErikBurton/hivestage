@@ -132,53 +132,64 @@ export default function EventsPage() {
             <p className="text-gray-500">Loading events...</p>
           </div>
         ) : events.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {events.map((event: any) => {
               const date = new Date(event.event_date)
               return (
-                <div key={event.id} className="bg-gray-900 rounded-2xl overflow-hidden hover:bg-gray-800 transition-colors">
-                  {event.cover_image_url && (
-                    <div className="relative w-full aspect-video">
-                      <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h2 className="text-lg font-semibold">{event.title}</h2>
-                        {event.event_bands?.length > 0 && (
-                          <p className="text-sm mt-1">
-                            {event.event_bands.map((eb: any, i: number) => (
-                              <span key={eb.bands?.id}>
-                                <a href={`/bands/${eb.bands?.id}`} className="text-yellow-400 hover:underline">
-                                  {eb.bands?.profiles?.display_name}
-                                </a>
-                                {i < event.event_bands.length - 1 ? ', ' : ''}
-                              </span>
-                            ))}
-                          </p>
-                        )}
-                        {event.description && (
-                          <p className="text-gray-400 text-sm mt-2">{event.description}</p>
-                        )}
-                        <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-500">
-                          {event.venues && (
-                            <a href={`/venues/${event.venues.id}`} className="hover:text-yellow-400 transition-colors">
-                              📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}
-                            </a>
-                          )}
-                          <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
-                          {event.is_free && <span className="text-green-400 font-medium">Free</span>}
-                        </div>
-                      </div>
-                      {event.ticket_url && (
-                        <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" className="shrink-0 px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">
-                          Tickets
-                        </a>
+                <a
+                  key={event.id}
+                  href={`/events/${event.id}`}
+                  className="bg-gray-900 rounded-2xl p-5 hover:bg-gray-800 transition-colors flex items-center gap-4"
+                >
+                  {/* Date block */}
+                  <div className="shrink-0 w-14 text-center bg-gray-800 rounded-xl p-2">
+                    <p className="text-yellow-400 text-xs font-medium uppercase">
+                      {date.toLocaleDateString('en-US', { month: 'short' })}
+                    </p>
+                    <p className="text-white text-2xl font-bold leading-none">
+                      {date.getDate()}
+                    </p>
+                    <p className="text-gray-500 text-xs">
+                      {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                    </p>
+                  </div>
+
+                  {/* Event info */}
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-base font-semibold truncate">{event.title}</h2>
+                    {event.event_bands?.length > 0 && (
+                      <p className="text-sm mt-0.5">
+                        {event.event_bands.map((eb: any, i: number) => (
+                          <span key={eb.bands?.id} className="text-yellow-400">
+                            {eb.bands?.profiles?.display_name}
+                            {i < event.event_bands.length - 1 ? ', ' : ''}
+                          </span>
+                        ))}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-3 mt-1 text-xs text-gray-500">
+                      {event.venues && (
+                        <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
                       )}
+                      <span>🕐 {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                      {event.is_free && <span className="text-green-400 font-medium">Free</span>}
                     </div>
                   </div>
-                </div>
+
+                  {/* Right side */}
+                  <div className="shrink-0 flex flex-col items-end gap-2">
+                    {event.cover_image_url && (
+                      <div className="w-16 h-16 rounded-lg overflow-hidden">
+                        <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    {event.ticket_url && !event.is_free && (
+                      <span className="px-3 py-1 bg-yellow-400 text-gray-950 font-semibold rounded-lg text-xs">
+                        Tickets
+                      </span>
+                    )}
+                  </div>
+                </a>
               )
             })}
           </div>
@@ -189,7 +200,10 @@ export default function EventsPage() {
               {cityFilter || genreFilter || freeOnly ? 'Try adjusting your filters' : 'Be the first to post a show'}
             </p>
             {!cityFilter && !genreFilter && !freeOnly && (
-              <a href="/dashboard/events/new" className="inline-block mt-6 px-6 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors">
+              <a
+                href="/dashboard/events/new"
+                className="inline-block mt-6 px-6 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
+              >
                 Post an event
               </a>
             )}

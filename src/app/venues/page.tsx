@@ -22,25 +22,24 @@ export default function VenuesPage() {
   const [cityFilter, setCityFilter] = useState('')
 
   useEffect(() => {
+    async function loadVenues() {
+      setLoading(true)
+
+      let query = supabase
+        .from('venues')
+        .select(`*, profiles ( display_name, bio, avatar_url, website, instagram )`)
+        .order('created_at', { ascending: false })
+
+      if (cityFilter) {
+        query = query.eq('city', cityFilter)
+      }
+
+      const { data } = await query
+      setVenues(data || [])
+      setLoading(false)
+    }
     loadVenues()
   }, [cityFilter])
-
-  async function loadVenues() {
-    setLoading(true)
-
-    let query = supabase
-      .from('venues')
-      .select(`*, profiles ( display_name, bio, avatar_url, website, instagram )`)
-      .order('created_at', { ascending: false })
-
-    if (cityFilter) {
-      query = query.eq('city', cityFilter)
-    }
-
-    const { data } = await query
-    setVenues(data || [])
-    setLoading(false)
-  }
 
   const filteredVenues = venues.filter((v: any) =>
     v.profiles?.display_name?.toLowerCase().includes(search.toLowerCase())
@@ -59,13 +58,13 @@ export default function VenuesPage() {
         {/* Filters */}
         <div className="bg-gray-900 rounded-2xl p-4 mb-6 flex flex-wrap gap-3 items-center">
           <input
-            className="flex-1 min-w-[200px] px-3 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400 text-sm"
+            className="flex-1 min-w-50 px-3 py-2 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400 text-sm"
             placeholder="Search venues..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
           <select
-            className="flex-1 min-w-[160px] px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400 text-sm"
+            className="flex-1 min-w-40 px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400 text-sm"
             value={cityFilter}
             onChange={e => setCityFilter(e.target.value)}
           >
