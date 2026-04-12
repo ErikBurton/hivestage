@@ -126,6 +126,7 @@ export default function NewEventPage() {
       return
     }
 
+    console.log('accountType at save time:', accountType)
     if (accountType === 'band') {
       const { data: band } = await supabase
         .from('bands')
