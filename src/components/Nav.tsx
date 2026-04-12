@@ -1,8 +1,29 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function Nav() {
   const [open, setOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const supabase = createClient()
+
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+    }
+
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   return (
     <nav className="border-b border-gray-800 bg-gray-950 px-8 py-5">
@@ -14,8 +35,18 @@ export default function Nav() {
           <a href="/events" className="text-gray-400 hover:text-white text-sm transition-colors">Events</a>
           <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Bands</a>
           <a href="/venues" className="text-gray-400 hover:text-white text-sm transition-colors">Venues</a>
-          <a href="/login" className="text-gray-400 hover:text-white text-sm transition-colors">Log in</a>
-          <a href="/signup" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">Sign up free</a>
+          {!loading && (
+            user ? (
+              <a href="/dashboard" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">
+                Dashboard
+              </a>
+            ) : (
+              <>
+                <a href="/login" className="text-gray-400 hover:text-white text-sm transition-colors">Log in</a>
+                <a href="/signup" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">Sign up free</a>
+              </>
+            )
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -36,8 +67,18 @@ export default function Nav() {
           <a href="/events" className="text-gray-400 hover:text-white text-sm transition-colors" onClick={() => setOpen(false)}>Events</a>
           <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors" onClick={() => setOpen(false)}>Bands</a>
           <a href="/venues" className="text-gray-400 hover:text-white text-sm transition-colors" onClick={() => setOpen(false)}>Venues</a>
-          <a href="/login" className="text-gray-400 hover:text-white text-sm transition-colors" onClick={() => setOpen(false)}>Log in</a>
-          <a href="/signup" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm text-center" onClick={() => setOpen(false)}>Sign up free</a>
+          {!loading && (
+            user ? (
+              <a href="/dashboard" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm text-center" onClick={() => setOpen(false)}>
+                Dashboard
+              </a>
+            ) : (
+              <>
+                <a href="/login" className="text-gray-400 hover:text-white text-sm transition-colors" onClick={() => setOpen(false)}>Log in</a>
+                <a href="/signup" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm text-center" onClick={() => setOpen(false)}>Sign up free</a>
+              </>
+            )
+          )}
         </div>
       )}
     </nav>
