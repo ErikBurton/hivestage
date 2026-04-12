@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
+import Nav from '@/components/Nav'
 
 export default async function VenueProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -27,9 +28,10 @@ export default async function VenueProfilePage({ params }: { params: Promise<{ i
   )
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-8">
-      <div className="max-w-2xl mx-auto">
-        <a href="/events" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to events</a>
+    <main className="min-h-screen bg-gray-950 text-white">
+      <Nav />
+      <div className="max-w-2xl mx-auto p-8">
+        <a href="/venues" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to venues</a>
 
         <div className="bg-gray-900 rounded-2xl p-8 mb-6">
           <div className="flex items-start gap-6">

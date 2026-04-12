@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import Nav from '@/components/Nav'
 
 const GENRES = ['Rock', 'Pop', 'Hip Hop', 'Country', 'Jazz', 'Metal', 'Folk', 'Electronic', 'R&B', 'Punk', 'Indie', 'Blues']
 
@@ -32,10 +33,7 @@ export default function BandsPage() {
 
     let query = supabase
       .from('bands')
-      .select(`
-        *,
-        profiles ( display_name, bio, avatar_url, website, instagram )
-      `)
+      .select(`*, profiles ( display_name, bio, avatar_url, website, instagram )`)
       .order('created_at', { ascending: false })
 
     if (cityFilter) {
@@ -46,9 +44,7 @@ export default function BandsPage() {
     let filtered = data || []
 
     if (genreFilter) {
-      filtered = filtered.filter((b: any) =>
-        b.genres?.includes(genreFilter)
-      )
+      filtered = filtered.filter((b: any) => b.genres?.includes(genreFilter))
     }
 
     setBands(filtered)
@@ -60,22 +56,13 @@ export default function BandsPage() {
   )
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-8">
-      <div className="max-w-4xl mx-auto">
+    <main className="min-h-screen bg-gray-950 text-white">
+      <Nav />
+      <div className="max-w-4xl mx-auto p-8">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <a href="/" className="text-2xl font-bold text-yellow-400">HiveStage</a>
-            <p className="text-gray-400 mt-1">Utah bands</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <a href="/events" className="text-gray-400 hover:text-white text-sm transition-colors">Events</a>
-            <a href="/venues" className="text-gray-400 hover:text-white text-sm transition-colors">Venues</a>
-            <a href="/dashboard" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">
-              Dashboard
-            </a>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-1">Utah bands</h1>
+          <p className="text-gray-400">Discover local musicians</p>
         </div>
 
         {/* Filters */}
@@ -96,7 +83,6 @@ export default function BandsPage() {
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-
           <select
             className="flex-1 min-w-[160px] px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400 text-sm"
             value={genreFilter}
@@ -107,7 +93,6 @@ export default function BandsPage() {
               <option key={g} value={g}>{g}</option>
             ))}
           </select>
-
           {(search || cityFilter || genreFilter) && (
             <button
               onClick={() => { setSearch(''); setCityFilter(''); setGenreFilter('') }}
@@ -118,12 +103,10 @@ export default function BandsPage() {
           )}
         </div>
 
-        {/* Results count */}
         <p className="text-gray-500 text-sm mb-4">
           {loading ? 'Loading...' : `${filteredBands.length} band${filteredBands.length !== 1 ? 's' : ''} found`}
         </p>
 
-        {/* Bands grid */}
         {loading ? (
           <div className="text-center py-20">
             <p className="text-gray-500">Loading bands...</p>
@@ -131,11 +114,7 @@ export default function BandsPage() {
         ) : filteredBands.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredBands.map((band: any) => (
-              <a
-                key={band.id}
-                href={`/bands/${band.id}`}
-                className="bg-gray-900 rounded-2xl p-6 hover:bg-gray-800 transition-colors flex items-start gap-4"
-              >
+              <a key={band.id} href={`/bands/${band.id}`} className="bg-gray-900 rounded-2xl p-6 hover:bg-gray-800 transition-colors flex items-start gap-4">
                 <div className="w-14 h-14 rounded-xl overflow-hidden bg-yellow-400 flex items-center justify-center text-gray-950 text-xl font-bold shrink-0">
                   {band.profiles?.avatar_url ? (
                     <img src={band.profiles.avatar_url} alt={band.profiles.display_name} className="w-full h-full object-cover" />
@@ -145,9 +124,7 @@ export default function BandsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-lg truncate">{band.profiles?.display_name}</p>
-                  {band.city && (
-                    <p className="text-gray-400 text-sm mt-0.5">📍 {band.city}, Utah</p>
-                  )}
+                  {band.city && <p className="text-gray-400 text-sm mt-0.5">📍 {band.city}, Utah</p>}
                   {band.genres?.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {band.genres.slice(0, 3).map((g: string) => (

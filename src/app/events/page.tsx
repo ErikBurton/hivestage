@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import Nav from '@/components/Nav'
 
 const UTAH_CITIES = [
   'Alpine', 'American Fork', 'Bountiful', 'Cedar City', 'Cedar Hills',
@@ -71,22 +72,13 @@ export default function EventsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-8">
-      <div className="max-w-3xl mx-auto">
+    <main className="min-h-screen bg-gray-950 text-white">
+      <Nav />
+      <div className="max-w-3xl mx-auto p-8">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <a href="/" className="text-2xl font-bold text-yellow-400">HiveStage</a>
-            <p className="text-gray-400 mt-1">Live music across Utah</p>
-          </div>
-          <div className="hidden md:flex items-center gap-3">
-            <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Bands</a>
-            <a href="/venues" className="text-gray-400 hover:text-white text-sm transition-colors">Venues</a>
-            <a href="/dashboard" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">
-              Dashboard
-            </a>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-1">Live music across Utah</h1>
+          <p className="text-gray-400">Find your next show</p>
         </div>
 
         {/* Filters */}
@@ -143,31 +135,22 @@ export default function EventsPage() {
           <div className="space-y-4">
             {events.map((event: any) => {
               const date = new Date(event.event_date)
-
               return (
                 <div key={event.id} className="bg-gray-900 rounded-2xl overflow-hidden hover:bg-gray-800 transition-colors">
                   {event.cover_image_url && (
                     <div className="relative w-full aspect-video">
-                      <img
-                        src={event.cover_image_url}
-                        alt={event.title}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
                     </div>
                   )}
                   <div className="p-6">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <h2 className="text-lg font-semibold">{event.title}</h2>
-
                         {event.event_bands?.length > 0 && (
                           <p className="text-sm mt-1">
                             {event.event_bands.map((eb: any, i: number) => (
                               <span key={eb.bands?.id}>
-                                <a
-                                  href={`/bands/${eb.bands?.id}`}
-                                  className="text-yellow-400 hover:underline"
-                                >
+                                <a href={`/bands/${eb.bands?.id}`} className="text-yellow-400 hover:underline">
                                   {eb.bands?.profiles?.display_name}
                                 </a>
                                 {i < event.event_bands.length - 1 ? ', ' : ''}
@@ -175,11 +158,9 @@ export default function EventsPage() {
                             ))}
                           </p>
                         )}
-
                         {event.description && (
                           <p className="text-gray-400 text-sm mt-2">{event.description}</p>
                         )}
-
                         <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-500">
                           {event.venues && (
                             <a href={`/venues/${event.venues.id}`} className="hover:text-yellow-400 transition-colors">
@@ -190,14 +171,8 @@ export default function EventsPage() {
                           {event.is_free && <span className="text-green-400 font-medium">Free</span>}
                         </div>
                       </div>
-
                       {event.ticket_url && (
-                        <a
-                          href={event.ticket_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="shrink-0 px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm"
-                        >
+                        <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" className="shrink-0 px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">
                           Tickets
                         </a>
                       )}
@@ -214,10 +189,7 @@ export default function EventsPage() {
               {cityFilter || genreFilter || freeOnly ? 'Try adjusting your filters' : 'Be the first to post a show'}
             </p>
             {!cityFilter && !genreFilter && !freeOnly && (
-              <a
-                href="/dashboard/events/new"
-                className="inline-block mt-6 px-6 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
-              >
+              <a href="/dashboard/events/new" className="inline-block mt-6 px-6 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors">
                 Post an event
               </a>
             )}

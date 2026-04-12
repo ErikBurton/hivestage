@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import Nav from '@/components/Nav'
 
 const UTAH_CITIES = [
   'Alpine', 'American Fork', 'Bountiful', 'Cedar City', 'Cedar Hills',
@@ -29,10 +30,7 @@ export default function VenuesPage() {
 
     let query = supabase
       .from('venues')
-      .select(`
-        *,
-        profiles ( display_name, bio, avatar_url, website, instagram )
-      `)
+      .select(`*, profiles ( display_name, bio, avatar_url, website, instagram )`)
       .order('created_at', { ascending: false })
 
     if (cityFilter) {
@@ -50,26 +48,12 @@ export default function VenuesPage() {
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
+      <Nav />
       <div className="max-w-4xl mx-auto p-8">
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-1">Utah Venues</h1>
-          <p className="text-gray-400">Find places to see live music across Utah</p>
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-        <div>
-            <a href="/" className="text-2xl font-bold text-yellow-400">HiveStage</a>
-            <p className="text-gray-400 mt-1">Utah venues</p>
-        </div>
-        <div className="flex items-center gap-3">
-            <a href="/events" className="text-gray-400 hover:text-white text-sm transition-colors">Events</a>
-            <a href="/bands" className="text-gray-400 hover:text-white text-sm transition-colors">Bands</a>
-            <a href="/dashboard" className="px-4 py-2 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors text-sm">
-            Dashboard
-            </a>
-        </div>
+          <h1 className="text-3xl font-bold text-white mb-1">Utah venues</h1>
+          <p className="text-gray-400">Find places to see live music</p>
         </div>
 
         {/* Filters */}
@@ -90,7 +74,6 @@ export default function VenuesPage() {
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-
           {(search || cityFilter) && (
             <button
               onClick={() => { setSearch(''); setCityFilter('') }}
@@ -101,12 +84,10 @@ export default function VenuesPage() {
           )}
         </div>
 
-        {/* Results count */}
         <p className="text-gray-500 text-sm mb-4">
           {loading ? 'Loading...' : `${filteredVenues.length} venue${filteredVenues.length !== 1 ? 's' : ''} found`}
         </p>
 
-        {/* Venues grid */}
         {loading ? (
           <div className="text-center py-20">
             <p className="text-gray-500">Loading venues...</p>
@@ -114,11 +95,7 @@ export default function VenuesPage() {
         ) : filteredVenues.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredVenues.map((venue: any) => (
-              <a
-                key={venue.id}
-                href={`/venues/${venue.id}`}
-                className="bg-gray-900 rounded-2xl p-6 hover:bg-gray-800 transition-colors flex items-start gap-4"
-              >
+              <a key={venue.id} href={`/venues/${venue.id}`} className="bg-gray-900 rounded-2xl p-6 hover:bg-gray-800 transition-colors flex items-start gap-4">
                 <div className="w-14 h-14 rounded-xl overflow-hidden bg-yellow-400 flex items-center justify-center text-gray-950 text-xl font-bold shrink-0">
                   {venue.profiles?.avatar_url ? (
                     <img src={venue.profiles.avatar_url} alt={venue.profiles.display_name} className="w-full h-full object-cover" />
@@ -137,14 +114,6 @@ export default function VenuesPage() {
                   {venue.profiles?.bio && (
                     <p className="text-gray-500 text-sm mt-2 line-clamp-2">{venue.profiles.bio}</p>
                   )}
-                  <div className="flex gap-3 mt-2">
-                    {venue.profiles?.website && (
-                      <span className="text-yellow-400 text-xs">Website →</span>
-                    )}
-                    {venue.profiles?.instagram && (
-                      <span className="text-yellow-400 text-xs">@{venue.profiles.instagram}</span>
-                    )}
-                  </div>
                 </div>
               </a>
             ))}
