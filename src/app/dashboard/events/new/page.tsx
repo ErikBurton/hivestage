@@ -60,6 +60,17 @@ export default function NewEventPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Reject HEIC files
+    const isHeic = file.name.toLowerCase().endsWith('.heic') || 
+                  file.name.toLowerCase().endsWith('.heif') ||
+                  file.type === 'image/heic' ||
+                  file.type === 'image/heif'
+
+    if (isHeic) {
+      setError('HEIC/HEIF photos are not supported. Please convert to JPG or PNG first. On iPhone: open the photo, tap Share → Save as File → choose JPG.')
+      return
+    }
+
     if (file.size > 5 * 1024 * 1024) {
       setError('Image must be under 5MB')
       return
@@ -183,7 +194,7 @@ export default function NewEventPage() {
               ) : (
                 <div className="text-center">
                   <p className="text-gray-500 text-sm">{uploading ? 'Uploading...' : 'Click to upload a flyer or photo'}</p>
-                  <p className="text-gray-600 text-xs mt-1">JPG, PNG up to 5MB</p>
+                  <p className="text-gray-600 text-xs mt-1">JPG or PNG only, up to 5MB — no HEIC</p>
                 </div>
               )}
             </div>
