@@ -137,20 +137,18 @@ export default function NewEventPage() {
       return
     }
 
-    console.log('accountType at save time:', accountType)
-    if (accountType === 'band') {
-      const { data: band } = await supabase
-        .from('bands')
-        .select('id')
-        .eq('profile_id', user.id)
-        .single()
+    // Always check directly from the database — don't rely on state
+    const { data: band } = await supabase
+      .from('bands')
+      .select('id')
+      .eq('profile_id', user.id)
+      .single()
 
-      if (band) {
-        await supabase.from('event_bands').insert({
-          event_id: event.id,
-          band_id: band.id,
-        })
-      }
+    if (band) {
+      await supabase.from('event_bands').insert({
+        event_id: event.id,
+        band_id: band.id,
+      })
     }
 
     // Send notifications to followers
