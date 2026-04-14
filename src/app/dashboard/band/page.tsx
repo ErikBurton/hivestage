@@ -72,6 +72,17 @@ export default function BandProfilePage() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Reject HEIC files
+    const isHeic = file.name.toLowerCase().endsWith('.heic') ||
+                   file.name.toLowerCase().endsWith('.heif') ||
+                   file.type === 'image/heic' ||
+                   file.type === 'image/heif'
+
+    if (isHeic) {
+      setError('HEIC/HEIF photos are not supported. Please convert to JPG or PNG first. On iPhone: open the photo, tap Share → Save as File → choose JPG.')
+      return
+    }
+
     if (file.size > 5 * 1024 * 1024) {
       setError('Image must be under 5MB')
       return
@@ -176,12 +187,12 @@ export default function BandProfilePage() {
               >
                 {uploading ? 'Uploading...' : 'Upload photo'}
               </button>
-              <p className="text-gray-600 text-xs mt-1">JPG, PNG up to 5MB</p>
+              <p className="text-gray-600 text-xs mt-1">JPG or PNG only, up to 5MB — no HEIC</p>
             </div>
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/gif,image/webp"
               className="hidden"
               onChange={handleAvatarUpload}
             />
