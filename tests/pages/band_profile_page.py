@@ -16,11 +16,13 @@ class BandProfilePage(BasePage):
 
     def follow(self):
         self.click(self.FOLLOW_BUTTON)
+        self.page.wait_for_timeout(3000)
 
     def unfollow(self):
         self.click(self.FOLLOWING_BUTTON)
 
     def is_following(self):
+        self.page.wait_for_timeout(2000)
         return self.is_visible(self.FOLLOWING_BUTTON)
 
     def is_follow_button_visible(self):
