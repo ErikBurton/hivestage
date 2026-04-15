@@ -1,51 +1,178 @@
 # HiveStage 🐝
 
-Utah's home for live music. HiveStage is a platform for local bands, venues, and fans to connect through live music events across Utah.
+Utah's home for live music. HiveStage connects local bands, venues, and fans across Utah — ad-free, algorithm-free, and built by a musician.
 
-🌐 **Live at [www.hivestage.live](https://www.hivestage.live)**
+🌐 **Live site:** [www.hivestage.live](https://www.hivestage.live)
 
-## What it does
+---
 
-- **Bands** — Create a profile, post shows, and get discovered by fans across Utah
-- **Venues** — Manage your event calendar and connect with local talent
-- **Fans** — Browse upcoming events by city, genre, and date
+## Tech Stack
 
-## Tech stack
+- **Frontend:** Next.js 16.2.2 (App Router, Turbopack)
+- **Backend:** Supabase (PostgreSQL, Auth, Storage)
+- **Styling:** Tailwind CSS
+- **Email:** Resend
+- **Deployment:** Vercel
+- **Testing:** Playwright + Pytest + Page Object Model
+- **CI/CD:** GitHub Actions
 
-- **Framework** — Next.js 15 (App Router)
-- **Database** — Supabase (PostgreSQL)
-- **Auth** — Supabase Auth
-- **Storage** — Supabase Storage
-- **Hosting** — Vercel
-- **Styling** — Tailwind CSS
+---
 
 ## Features
 
-- User authentication with email signup and password recovery
-- Role-based accounts (band, venue, fan)
-- Band and venue profiles with photo uploads
-- Event creation, editing, and deletion
-- Public event discovery feed with filters (city, genre, free only)
-- Public band and venue profile pages
-- Admin dashboard for platform management
-- SEO optimized with sitemap and Google Search Console
+- 🎸 **Band profiles** — bio, genres, city, avatar, social links
+- 🏟️ **Venue profiles** — address, capacity, upcoming events
+- 🎟️ **Event listings** — cover images, ticket links, free/paid
+- 🔍 **Discovery** — search and filter events, bands, and venues
+- ❤️ **Fan follows** — follow bands and get notified of new shows
+- 📧 **Email notifications** — welcome emails and new show alerts
+- 🔗 **Social sharing** — share events with Open Graph previews
+- 🛡️ **Admin panel** — manage users, events, and venues
+- 🔒 **Auth** — signup, login, password reset
 
-## Getting started
+---
 
-1. Clone the repo
-2. Install dependencies: `npm install`
-3. Create a Supabase project and run the schema from the SQL setup
-4. Add environment variables to `.env.local`:
+## Getting Started
 
-5. Run the dev server: `npm run dev`
+### Prerequisites
 
-## Environment variables
+- Node.js 18+
+- Python 3.14+
+- A Supabase project
+- A Resend account
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon/public key |
+### Installation
 
-## Deployment
+```bash
+# Clone the repo
+git clone https://github.com/ErikBurton/hivestage.git
+cd hivestage
 
-Deployed on Vercel with automatic deployments from the `main` branch on GitHub.
+# Install Node dependencies
+npm install
+
+# Install Python dependencies
+python -m venv .venv
+source .venv/bin/activate
+pip install pytest playwright pytest-playwright python-dotenv
+
+# Install Playwright browsers
+playwright install chromium
+```
+
+### Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+RESEND_API_KEY=your_resend_api_key
+```
+
+### Run the dev server
+
+```bash
+npm run dev
+```
+
+Visit [http://localhost:3000](http://localhost:3000)
+
+---
+
+## Testing
+
+HiveStage uses **Playwright + Pytest** with the **Page Object Model (POM)** pattern for end-to-end testing.
+
+### Test structure
+
+```
+tests/
+├── conftest.py              # Shared fixtures
+├── pages/                   # Page Object Model
+│   ├── base_page.py
+│   ├── login_page.py
+│   ├── signup_page.py
+│   ├── dashboard_page.py
+│   ├── events_page.py
+│   └── band_profile_page.py
+├── test_auth.py             # Auth tests
+├── test_events.py           # Event tests
+├── test_bands.py            # Band tests
+└── test_admin.py            # Admin tests
+```
+
+### Run tests locally
+
+Create a `.env.test` file:
+
+```env
+TEST_BASE_URL=http://localhost:3000
+TEST_BAND_EMAIL=your_band_email
+TEST_BAND_PASSWORD=your_band_password
+TEST_FAN_EMAIL=your_fan_email
+TEST_FAN_PASSWORD=your_fan_password
+TEST_ADMIN_EMAIL=your_admin_email
+TEST_ADMIN_PASSWORD=your_admin_password
+```
+
+Make sure the dev server is running, then:
+
+```bash
+source .venv/bin/activate
+pytest tests/ -v
+```
+
+Run a specific test file:
+
+```bash
+pytest tests/test_auth.py -v
+```
+
+Run in headed mode (see the browser):
+
+```bash
+pytest tests/ -v --headed
+```
+
+---
+
+## CI/CD
+
+GitHub Actions automatically runs all 45 tests on every push to `main`, `develop`, and `feature/**` branches.
+
+The pipeline:
+1. Installs Node and Python dependencies
+2. Installs Playwright browsers
+3. Starts the Next.js dev server
+4. Runs the full test suite
+5. Uploads test artifacts on failure
+
+**Branch strategy:**
+feature/xxx → develop → main (production)
+
+- `main` → deploys to [www.hivestage.live](https://www.hivestage.live)
+- `develop` → Vercel preview URL
+- `feature/xxx` → deleted after merging
+
+---
+
+## Database
+
+Supabase PostgreSQL with the following tables:
+
+- `profiles` — all users (bands, venues, fans)
+- `bands` — band-specific data (genres, city)
+- `venues` — venue-specific data (address, capacity)
+- `events` — shows with cover images and ticket links
+- `event_bands` — junction table linking events to bands
+- `follows` — fan follows for bands
+
+Row Level Security (RLS) is enabled on all tables.
+
+---
+
+## Contact
+
+📧 [hello@hivestage.live](mailto:hello@hivestage.live)
