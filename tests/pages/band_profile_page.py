@@ -24,7 +24,8 @@ class BandProfilePage(BasePage):
         return self.is_visible(self.FOLLOWING_BUTTON)
 
     def is_follow_button_visible(self):
-        return self.is_visible(self.FOLLOW_BUTTON)
+        self.page.wait_for_timeout(2000)
+        return self.page.is_visible('button:has-text("Follow")')
 
     def get_band_name(self):
         return self.get_text(self.BAND_NAME)
