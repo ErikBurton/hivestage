@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import SearchHero from './SearchHero'
 import Nav from '@/components/Nav'
+import { formatTime, formatDate } from '@/lib/dateUtils'
 
 export const metadata = {
   title: 'HiveStage — Utah\'s Home for Live Music',
@@ -22,10 +23,8 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
-
       <Nav />
 
-      {/* Hero */}
       <section className="text-center px-8 py-20 max-w-4xl mx-auto">
         <h1 className="text-5xl font-bold mb-4 leading-tight">
           Utah's home for <span className="text-yellow-400">live music</span>
@@ -44,7 +43,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4 px-8 pb-20 max-w-4xl mx-auto">
         {[
           { icon: '🎸', title: 'For bands', desc: 'Create a profile, post your shows, and get discovered by fans across Utah.' },
@@ -59,7 +57,6 @@ export default async function HomePage() {
         ))}
       </section>
 
-      {/* Upcoming shows */}
       {events && events.length > 0 && (
         <section className="px-8 pb-20 max-w-4xl mx-auto">
           <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">Upcoming shows</p>
@@ -71,11 +68,7 @@ export default async function HomePage() {
                 <div key={event.id} className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800">
                   {event.cover_image_url && (
                     <div className="relative w-full aspect-video">
-                      <img
-                        src={event.cover_image_url}
-                        alt={event.title}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
                     </div>
                   )}
                   <div className="p-5 flex items-center justify-between gap-4">
@@ -84,7 +77,7 @@ export default async function HomePage() {
                       {bands?.length > 0 && <p className="text-yellow-400 text-sm mt-1">{bands.join(', ')}</p>}
                       <div className="flex gap-3 mt-2 text-sm text-gray-500 flex-wrap">
                         {event.venues && <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>}
-                        <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                        <span>🕐 {formatDate(date)} at {formatTime(date)}</span>
                       </div>
                     </div>
                     {event.is_free
@@ -104,7 +97,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* CTA */}
       <section className="text-center px-8 py-20 border-t border-gray-800">
         <h2 className="text-3xl font-bold mb-3">Ready to get on stage?</h2>
         <p className="text-gray-400 mb-8">Join Utah musicians and venues already on HiveStage.</p>
@@ -113,7 +105,6 @@ export default async function HomePage() {
         </a>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-gray-800 px-8 py-6 flex items-center justify-between text-gray-600 text-sm">
         <span className="text-yellow-400 font-bold">HiveStage</span>
         <div className="flex items-center gap-6">
@@ -123,7 +114,6 @@ export default async function HomePage() {
           <span>Utah's home for live music</span>
         </div>
       </footer>
-
     </main>
   )
 }

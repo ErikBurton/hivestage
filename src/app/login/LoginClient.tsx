@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { formatDate, formatTime } from '@/lib/dateUtils'
 
 export default function LoginClient({ events }: { events: any[] }) {
   const supabase = createClient()
@@ -55,13 +56,10 @@ export default function LoginClient({ events }: { events: any[] }) {
             <p className="text-2xl font-semibold text-white leading-tight mb-2">Utah's home for<br/>live music</p>
             <p className="text-gray-500 text-sm leading-relaxed mb-8">Discover shows, connect with bands<br/>and venues across Utah.</p>
 
-            {/* Dynamic events */}
             <div className="space-y-3">
               {events.length > 0 ? events.map((event: any, i: number) => {
                 const date = new Date(event.event_date)
-                const venueName = event.venues?.profiles?.display_name
                 const city = event.venues?.city
-                const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
                 const colors = ['#facc15', '#4ade80']
                 return (
                   <div key={event.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center gap-3">
@@ -69,7 +67,7 @@ export default function LoginClient({ events }: { events: any[] }) {
                     <div>
                       <p className="text-white text-sm font-medium">{event.title}</p>
                       <p className="text-gray-500 text-xs mt-0.5">
-                        {dateStr}
+                        {formatDate(date)}
                         {city ? ` · ${city}` : ''}
                         {event.is_free ? ' · Free' : ' · Tickets'}
                       </p>

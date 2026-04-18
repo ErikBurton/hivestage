@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Nav from '@/components/Nav'
 import ShareButtons from '@/components/ShareButtons'
+import { formatTime, formatDateLong } from '@/lib/dateUtils'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -9,11 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const { data: event } = await supabase
     .from('events')
-    .select(`
-      *,
-      venues ( city, profiles ( display_name ) ),
-      event_bands ( bands ( profiles ( display_name ) ) )
-    `)
+    .select(`*, venues ( city, profiles ( display_name ) ), event_bands ( bands ( profiles ( display_name ) ) )`)
     .eq('id', id)
     .single()
 
@@ -23,13 +20,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const bandNames = event.event_bands?.map((eb: any) => eb.bands?.profiles?.display_name).filter(Boolean).join(', ')
   const venueName = event.venues?.profiles?.display_name
   const city = event.venues?.city
-  const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
 
   const description = [
     bandNames && `Featuring ${bandNames}`,
     venueName && `At ${venueName}`,
     city && `${city}, Utah`,
-    dateStr,
+    formatDateLong(date),
     event.is_free ? 'Free admission' : 'Get your tickets now',
   ].filter(Boolean).join(' · ')
 
@@ -41,21 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description,
       url: `https://www.hivestage.live/events/${id}`,
       siteName: 'HiveStage',
-      images: event.cover_image_url ? [
-        {
-          url: event.cover_image_url,
-          width: 1280,
-          height: 720,
-          alt: event.title,
-        }
-      ] : [
-        {
-          url: 'https://www.hivestage.live/og-default.png',
-          width: 1280,
-          height: 720,
-          alt: 'HiveStage — Utah\'s Home for Live Music',
-        }
-      ],
+      images: event.cover_image_url ? [{ url: event.cover_image_url, width: 1280, height: 720, alt: event.title }] : [{ url: 'https://www.hivestage.live/og-default.png', width: 1280, height: 720, alt: 'HiveStage' }],
       type: 'website',
     },
     twitter: {
@@ -93,14 +75,12 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
       <div className="max-w-2xl mx-auto p-8">
         <a href="/events" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to events</a>
 
-        {/* Cover image */}
         {event.cover_image_url && (
           <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-6">
             <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
           </div>
         )}
 
-        {/* Event header */}
         <div className="bg-gray-900 rounded-2xl p-8 mb-6">
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-3xl font-bold">{event.title}</h1>
@@ -111,12 +91,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             <div className="flex items-center gap-3">
               <span className="text-2xl">🕐</span>
               <div>
-                <p className="text-white font-medium">
-                  {date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                </p>
-                <p className="text-gray-400">
-                  {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                </p>
+                <p className="text-white font-medium">{formatDateLong(date)}</p>
+                <p className="text-gray-400">{formatTime(date)}</p>
               </div>
             </div>
 
@@ -127,12 +103,8 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
                   <a href={`/venues/${event.venues.id}`} className="text-white font-medium hover:text-yellow-400 transition-colors">
                     {event.venues.profiles?.display_name}
                   </a>
-                  {event.venues.address && (
-                    <p className="text-gray-400">{event.venues.address}</p>
-                  )}
-                  {event.venues.city && (
-                    <p className="text-gray-400">{event.venues.city}, Utah</p>
-                  )}
+                  {event.venues.address && <p className="text-gray-400">{event.venues.address}</p>}
+                  {event.venues.city && <p className="text-gray-400">{event.venues.city}, Utah</p>}
                 </div>
               </div>
             )}
@@ -160,28 +132,18 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           )}
 
           {event.ticket_url && !event.is_free && (
-            <a
-              href={event.ticket_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 w-full block text-center py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
-            >
+            <a href={event.ticket_url} target="_blank" rel="noopener noreferrer" className="mt-6 w-full block text-center py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors">
               Get tickets
             </a>
           )}
         </div>
 
-        {/* Bands performing */}
         {bands && bands.length > 0 && (
           <div className="mb-6">
             <h2 className="text-lg font-semibold mb-4">Performing</h2>
             <div className="space-y-3">
               {bands.map((band: any) => (
-                <a
-                  key={band.id}
-                  href={`/bands/${band.id}`}
-                  className="bg-gray-900 rounded-2xl p-5 flex items-center gap-4 hover:bg-gray-800 transition-colors"
-                >
+                <a key={band.id} href={`/bands/${band.id}`} className="bg-gray-900 rounded-2xl p-5 flex items-center gap-4 hover:bg-gray-800 transition-colors">
                   <div className="w-14 h-14 rounded-xl overflow-hidden bg-yellow-400 flex items-center justify-center text-gray-950 text-xl font-bold shrink-0">
                     {band.profiles?.avatar_url ? (
                       <img src={band.profiles.avatar_url} alt={band.profiles.display_name} className="w-full h-full object-cover" />
@@ -207,14 +169,10 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
           </div>
         )}
 
-        {/* Venue card */}
         {event.venues && (
           <div>
             <h2 className="text-lg font-semibold mb-4">Venue</h2>
-            <a
-              href={`/venues/${event.venues.id}`}
-              className="bg-gray-900 rounded-2xl p-5 flex items-center gap-4 hover:bg-gray-800 transition-colors"
-            >
+            <a href={`/venues/${event.venues.id}`} className="bg-gray-900 rounded-2xl p-5 flex items-center gap-4 hover:bg-gray-800 transition-colors">
               <div className="w-14 h-14 rounded-xl overflow-hidden bg-yellow-400 flex items-center justify-center text-gray-950 text-xl font-bold shrink-0">
                 {event.venues.profiles?.avatar_url ? (
                   <img src={event.venues.profiles.avatar_url} alt={event.venues.profiles.display_name} className="w-full h-full object-cover" />
@@ -230,7 +188,6 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
             </a>
           </div>
         )}
-
       </div>
     </main>
   )

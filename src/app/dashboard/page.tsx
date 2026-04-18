@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { formatTime, formatDate, formatMonthShort, formatDayNumber, formatWeekdayShort } from '@/lib/dateUtils'
 
 export const metadata = { title: 'Dashboard' }
 
@@ -72,7 +73,6 @@ export default async function DashboardPage() {
           </form>
         </div>
 
-        {/* Following feed for fans */}
         {profile?.account_type === 'fan' && (
           <div className="mb-8">
             <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">
@@ -89,15 +89,9 @@ export default async function DashboardPage() {
                       className="bg-gray-900 rounded-2xl p-5 hover:bg-gray-800 transition-colors flex items-center gap-4"
                     >
                       <div className="shrink-0 w-14 text-center bg-gray-800 rounded-xl p-2">
-                        <p className="text-yellow-400 text-xs font-medium uppercase">
-                          {date.toLocaleDateString('en-US', { month: 'short' })}
-                        </p>
-                        <p className="text-white text-2xl font-bold leading-none">
-                          {date.getDate()}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          {date.toLocaleDateString('en-US', { weekday: 'short' })}
-                        </p>
+                        <p className="text-yellow-400 text-xs font-medium uppercase">{formatMonthShort(date)}</p>
+                        <p className="text-white text-2xl font-bold leading-none">{formatDayNumber(date)}</p>
+                        <p className="text-gray-500 text-xs">{formatWeekdayShort(date)}</p>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold truncate">{event.title}</p>
@@ -106,7 +100,7 @@ export default async function DashboardPage() {
                           {event.venues && (
                             <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
                           )}
-                          <span>🕐 {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                          <span>🕐 {formatTime(date)}</span>
                           {event.is_free && <span className="text-green-400">Free</span>}
                         </div>
                       </div>
@@ -122,9 +116,7 @@ export default async function DashboardPage() {
             ) : (
               <div className="bg-gray-900 rounded-2xl p-6 text-center">
                 <p className="text-gray-500 text-sm">You're not following any bands yet</p>
-                <a href="/bands" className="text-yellow-400 hover:underline text-sm mt-2 inline-block">
-                  Browse bands →
-                </a>
+                <a href="/bands" className="text-yellow-400 hover:underline text-sm mt-2 inline-block">Browse bands →</a>
               </div>
             )}
           </div>
@@ -180,16 +172,12 @@ export default async function DashboardPage() {
                       <div className="flex-1">
                         <p className="font-semibold">{event.title}</p>
                         <p className="text-gray-500 text-sm mt-1">
-                          🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                          🕐 {formatDate(date)} at {formatTime(date)}
                         </p>
                       </div>
                       <div className="flex gap-2 shrink-0">
-                        <a href={`/dashboard/events/${event.id}/edit`} className="px-3 py-1.5 text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">
-                          Edit
-                        </a>
-                        <a href={`/dashboard/events/${event.id}/delete`} className="px-3 py-1.5 text-sm bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors">
-                          Delete
-                        </a>
+                        <a href={`/dashboard/events/${event.id}/edit`} className="px-3 py-1.5 text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors">Edit</a>
+                        <a href={`/dashboard/events/${event.id}/delete`} className="px-3 py-1.5 text-sm bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors">Delete</a>
                       </div>
                     </div>
                   </div>

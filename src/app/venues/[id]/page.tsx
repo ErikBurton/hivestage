@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Nav from '@/components/Nav'
+import { formatTime, formatDate } from '@/lib/dateUtils'
 
 export default async function VenueProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -16,16 +17,11 @@ export default async function VenueProfilePage({ params }: { params: Promise<{ i
 
   const { data: events } = await supabase
     .from('events')
-    .select(`
-      *,
-      event_bands ( bands ( id, profiles ( display_name ) ) )
-    `)
+    .select(`*, event_bands ( bands ( id, profiles ( display_name ) ) )`)
     .eq('venue_id', venue.id)
     .order('event_date', { ascending: true })
 
-  const upcomingEvents = events?.filter(
-    (e: any) => new Date(e.event_date) >= new Date()
-  )
+  const upcomingEvents = events?.filter((e: any) => new Date(e.event_date) >= new Date())
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
@@ -68,7 +64,7 @@ export default async function VenueProfilePage({ params }: { params: Promise<{ i
               const date = new Date(event.event_date)
               const bands = event.event_bands?.map((eb: any) => eb.bands?.profiles?.display_name).filter(Boolean)
               return (
-                <div key={event.id} className="bg-gray-900 rounded-2xl overflow-hidden">
+                <a key={event.id} href={`/events/${event.id}`} className="bg-gray-900 rounded-2xl overflow-hidden hover:bg-gray-800 transition-colors block">
                   {event.cover_image_url && (
                     <div className="relative w-full aspect-video">
                       <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
@@ -77,11 +73,9 @@ export default async function VenueProfilePage({ params }: { params: Promise<{ i
                   <div className="p-5 flex items-center justify-between gap-4">
                     <div>
                       <p className="font-semibold">{event.title}</p>
-                      {bands?.length > 0 && (
-                        <p className="text-yellow-400 text-sm mt-1">{bands.join(', ')}</p>
-                      )}
+                      {bands?.length > 0 && <p className="text-yellow-400 text-sm mt-1">{bands.join(', ')}</p>}
                       <div className="flex gap-3 mt-2 text-sm text-gray-500 flex-wrap">
-                        <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                        <span>🕐 {formatDate(date)} at {formatTime(date)}</span>
                       </div>
                     </div>
                     {event.is_free
@@ -91,7 +85,7 @@ export default async function VenueProfilePage({ params }: { params: Promise<{ i
                         : null
                     }
                   </div>
-                </div>
+                </a>
               )
             })}
           </div>

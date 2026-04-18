@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
+import { formatTime, formatMonthShort, formatDayNumber, formatWeekdayShort } from '@/lib/dateUtils'
 
 const UTAH_CITIES = [
   'Alpine', 'American Fork', 'Bountiful', 'Cedar City', 'Cedar Hills',
@@ -42,29 +43,20 @@ export default function EventsPage() {
       `)
       .order('event_date', { ascending: true })
 
-    if (freeOnly) {
-      query = query.eq('is_free', true)
-    }
-
-    if (cityFilter) {
-      query = query.eq('venues.city', cityFilter)
-    }
+    if (freeOnly) query = query.eq('is_free', true)
+    if (cityFilter) query = query.eq('venues.city', cityFilter)
 
     const { data } = await query
     let filtered = data || []
 
     if (genreFilter) {
       filtered = filtered.filter((event: any) =>
-        event.event_bands?.some((eb: any) =>
-          eb.bands?.genres?.includes(genreFilter)
-        )
+        event.event_bands?.some((eb: any) => eb.bands?.genres?.includes(genreFilter))
       )
     }
 
     if (cityFilter) {
-      filtered = filtered.filter((event: any) =>
-        event.venues?.city === cityFilter
-      )
+      filtered = filtered.filter((event: any) => event.venues?.city === cityFilter)
     }
 
     setEvents(filtered)
@@ -81,7 +73,6 @@ export default function EventsPage() {
           <p className="text-gray-400">Find your next show</p>
         </div>
 
-        {/* Filters */}
         <div className="bg-gray-900 rounded-2xl p-4 mb-6 flex flex-wrap gap-3 items-center">
           <select
             className="flex-1 min-w-40 px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400 text-sm"
@@ -89,9 +80,7 @@ export default function EventsPage() {
             onChange={e => setCityFilter(e.target.value)}
           >
             <option value="">All cities</option>
-            {UTAH_CITIES.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+            {UTAH_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
 
           <select
@@ -100,18 +89,12 @@ export default function EventsPage() {
             onChange={e => setGenreFilter(e.target.value)}
           >
             <option value="">All genres</option>
-            {GENRES.map(g => (
-              <option key={g} value={g}>{g}</option>
-            ))}
+            {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
           </select>
 
           <button
             onClick={() => setFreeOnly(!freeOnly)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              freeOnly
-                ? 'bg-yellow-400 text-gray-950'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${freeOnly ? 'bg-yellow-400 text-gray-950' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
           >
             Free only
           </button>
@@ -126,7 +109,6 @@ export default function EventsPage() {
           )}
         </div>
 
-        {/* Events list */}
         {loading ? (
           <div className="text-center py-20">
             <p className="text-gray-500">Loading events...</p>
@@ -141,20 +123,12 @@ export default function EventsPage() {
                   href={`/events/${event.id}`}
                   className="bg-gray-900 rounded-2xl p-5 hover:bg-gray-800 transition-colors flex items-center gap-4"
                 >
-                  {/* Date block */}
                   <div className="shrink-0 w-14 text-center bg-gray-800 rounded-xl p-2">
-                    <p className="text-yellow-400 text-xs font-medium uppercase">
-                      {date.toLocaleDateString('en-US', { month: 'short' })}
-                    </p>
-                    <p className="text-white text-2xl font-bold leading-none">
-                      {date.getDate()}
-                    </p>
-                    <p className="text-gray-500 text-xs">
-                      {date.toLocaleDateString('en-US', { weekday: 'short' })}
-                    </p>
+                    <p className="text-yellow-400 text-xs font-medium uppercase">{formatMonthShort(date)}</p>
+                    <p className="text-white text-2xl font-bold leading-none">{formatDayNumber(date)}</p>
+                    <p className="text-gray-500 text-xs">{formatWeekdayShort(date)}</p>
                   </div>
 
-                  {/* Event info */}
                   <div className="flex-1 min-w-0">
                     <h2 className="text-base font-semibold truncate">{event.title}</h2>
                     {event.event_bands?.length > 0 && (
@@ -171,12 +145,11 @@ export default function EventsPage() {
                       {event.venues && (
                         <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
                       )}
-                      <span>🕐 {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                      <span>🕐 {formatTime(date)}</span>
                       {event.is_free && <span className="text-green-400 font-medium">Free</span>}
                     </div>
                   </div>
 
-                  {/* Right side */}
                   <div className="shrink-0 flex flex-col items-end gap-2">
                     {event.cover_image_url && (
                       <div className="w-16 h-16 rounded-lg overflow-hidden">
@@ -184,9 +157,7 @@ export default function EventsPage() {
                       </div>
                     )}
                     {event.ticket_url && !event.is_free && (
-                      <span className="px-3 py-1 bg-yellow-400 text-gray-950 font-semibold rounded-lg text-xs">
-                        Tickets
-                      </span>
+                      <span className="px-3 py-1 bg-yellow-400 text-gray-950 font-semibold rounded-lg text-xs">Tickets</span>
                     )}
                   </div>
                 </a>
@@ -200,10 +171,7 @@ export default function EventsPage() {
               {cityFilter || genreFilter || freeOnly ? 'Try adjusting your filters' : 'Be the first to post a show'}
             </p>
             {!cityFilter && !genreFilter && !freeOnly && (
-              <a
-                href="/dashboard/events/new"
-                className="inline-block mt-6 px-6 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
-              >
+              <a href="/dashboard/events/new" className="inline-block mt-6 px-6 py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors">
                 Post an event
               </a>
             )}
