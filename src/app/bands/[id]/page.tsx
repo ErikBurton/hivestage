@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Nav from '@/components/Nav'
 import FollowButton from '@/components/FollowButton'
+import { formatTime, formatDate } from '@/lib/dateUtils'
 
 export default async function BandProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -17,12 +18,7 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
 
   const { data: eventBands } = await supabase
     .from('event_bands')
-    .select(`
-      events (
-        *,
-        venues ( id, city, profiles ( display_name ) )
-      )
-    `)
+    .select(`events ( *, venues ( id, city, profiles ( display_name ) ) )`)
     .eq('band_id', band.id)
 
   const { count: followerCount } = await supabase
@@ -68,11 +64,9 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
               )}
             </div>
           </div>
-
           {band.profiles?.bio && (
             <p className="text-gray-300 mt-6 leading-relaxed">{band.profiles.bio}</p>
           )}
-
           <div className="flex gap-4 mt-6">
             {band.profiles?.website && (
               <a href={band.profiles.website} target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline text-sm">Website →</a>
@@ -102,7 +96,7 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
                         {event.venues && (
                           <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
                         )}
-                        <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                        <span>🕐 {formatDate(date)} at {formatTime(date)}</span>
                       </div>
                     </div>
                     {event.is_free

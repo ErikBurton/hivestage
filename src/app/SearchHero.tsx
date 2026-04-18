@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { formatDate, formatTime } from '@/lib/dateUtils'
 
 export default function SearchHero() {
   const supabase = createClient()
@@ -40,7 +41,6 @@ export default function SearchHero() {
         .limit(3),
     ])
 
-    // Filter client-side since ilike on joined tables doesn't always work
     const filteredBands = (bands || []).filter((b: any) =>
       b.profiles?.display_name?.toLowerCase().includes(search)
     )
@@ -66,7 +66,6 @@ export default function SearchHero() {
 
   return (
     <div className="relative w-full max-w-2xl mx-auto">
-      {/* Search input */}
       <div className="relative">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">🔍</span>
         <input
@@ -80,7 +79,6 @@ export default function SearchHero() {
         )}
       </div>
 
-      {/* Results dropdown */}
       {query.length >= 2 && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden z-50 shadow-2xl">
           {noResults ? (
@@ -91,7 +89,6 @@ export default function SearchHero() {
           ) : hasResults ? (
             <div className="divide-y divide-gray-800">
 
-              {/* Events */}
               {results.events.length > 0 && (
                 <div>
                   <p className="px-4 pt-3 pb-1 text-xs font-medium text-gray-500 uppercase tracking-widest">Events</p>
@@ -100,7 +97,7 @@ export default function SearchHero() {
                     return (
                       <a
                         key={event.id}
-                        href={`/events`}
+                        href={`/events/${event.id}`}
                         className="flex items-center gap-3 px-4 py-3 hover:bg-gray-800 transition-colors"
                       >
                         <div className="w-8 h-8 rounded-lg bg-yellow-400 flex items-center justify-center text-gray-950 shrink-0">
@@ -109,7 +106,7 @@ export default function SearchHero() {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">{event.title}</p>
                           <p className="text-gray-500 text-xs">
-                            {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            {formatDate(date)}
                             {event.venues?.city ? ` · ${event.venues.city}` : ''}
                             {event.is_free ? ' · Free' : ''}
                           </p>
@@ -120,7 +117,6 @@ export default function SearchHero() {
                 </div>
               )}
 
-              {/* Bands */}
               {results.bands.length > 0 && (
                 <div>
                   <p className="px-4 pt-3 pb-1 text-xs font-medium text-gray-500 uppercase tracking-widest">Bands</p>
@@ -149,7 +145,6 @@ export default function SearchHero() {
                 </div>
               )}
 
-              {/* Venues */}
               {results.venues.length > 0 && (
                 <div>
                   <p className="px-4 pt-3 pb-1 text-xs font-medium text-gray-500 uppercase tracking-widest">Venues</p>
@@ -175,12 +170,8 @@ export default function SearchHero() {
                 </div>
               )}
 
-              {/* View all */}
               <div className="p-3 bg-gray-950">
-                <a
-                  href={`/events`}
-                  className="block text-center text-yellow-400 text-sm hover:underline"
-                >
+                <a href="/events" className="block text-center text-yellow-400 text-sm hover:underline">
                   View all events →
                 </a>
               </div>

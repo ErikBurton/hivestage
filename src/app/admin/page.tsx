@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { formatDate } from '@/lib/dateUtils'
 
 export const metadata = { title: 'Admin' }
 
@@ -21,7 +22,12 @@ async function deleteUser(userId: string) {
   redirect('/admin')
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ success?: string }>
+}) {
+  const { success } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -76,6 +82,13 @@ export default async function AdminPage() {
             Back to dashboard
           </a>
         </div>
+
+        {/* Success message */}
+        {success === 'venue_created' && (
+          <div className="bg-green-950 border border-green-800 text-green-400 rounded-xl px-4 py-3 text-sm mb-6">
+            Venue created successfully!
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
@@ -139,7 +152,7 @@ export default async function AdminPage() {
                           </div>
                         </td>
                         <td className="p-4 text-gray-400 text-xs">
-                          {new Date(band.profiles?.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {formatDate(new Date(band.profiles?.created_at))}
                         </td>
                         <td className="p-4">
                           <div className="flex gap-3">
@@ -217,7 +230,7 @@ export default async function AdminPage() {
                         <td className="p-4 text-gray-400">{venue.city || '—'}</td>
                         <td className="p-4 text-gray-400">{venue.capacity ? venue.capacity.toLocaleString() : '—'}</td>
                         <td className="p-4 text-gray-400 text-xs">
-                          {new Date(venue.profiles?.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {formatDate(new Date(venue.profiles?.created_at))}
                         </td>
                         <td className="p-4">
                           <div className="flex gap-3">
@@ -282,7 +295,7 @@ export default async function AdminPage() {
                           </div>
                         </td>
                         <td className="p-4 text-gray-400 text-xs">
-                          {new Date(fan.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {formatDate(new Date(fan.created_at))}
                         </td>
                         <td className="p-4">
                           <form action={deleteUserWithId}>
@@ -337,7 +350,7 @@ export default async function AdminPage() {
                         <td className="p-4 text-gray-400">{bandNames?.join(', ') || '—'}</td>
                         <td className="p-4 text-gray-400">{event.venues?.profiles?.display_name || '—'}</td>
                         <td className="p-4 text-gray-400 text-xs">
-                          {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          {formatDate(date)}
                         </td>
                         <td className="p-4">
                           {event.is_free
