@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Nav from '@/components/Nav'
 import FollowButton from '@/components/FollowButton'
+import { formatTime, formatDate } from '@/lib/dateUtils'
 
 export default async function BandProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -17,12 +18,7 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
 
   const { data: eventBands } = await supabase
     .from('event_bands')
-    .select(`
-      events (
-        *,
-        venues ( id, city, profiles ( display_name ) )
-      )
-    `)
+    .select(`events ( *, venues ( id, city, profiles ( display_name ) ) )`)
     .eq('band_id', band.id)
 
   const { count: followerCount } = await supabase
@@ -30,10 +26,17 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
     .select('*', { count: 'exact', head: true })
     .eq('band_id', band.id)
 
+  const now = new Date()
+
   const upcomingEvents = eventBands
     ?.map((eb: any) => eb.events)
-    .filter((e: any) => e && new Date(e.event_date) >= new Date())
+    .filter((e: any) => e && new Date(e.event_date) >= now)
     .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+
+  const pastEvents = eventBands
+    ?.map((eb: any) => eb.events)
+    .filter((e: any) => e && new Date(e.event_date) < now)
+    .sort((a: any, b: any) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime())
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
@@ -68,11 +71,9 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
               )}
             </div>
           </div>
-
           {band.profiles?.bio && (
             <p className="text-gray-300 mt-6 leading-relaxed">{band.profiles.bio}</p>
           )}
-
           <div className="flex gap-4 mt-6">
             {band.profiles?.website && (
               <a href={band.profiles.website} target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline text-sm">Website →</a>
@@ -83,9 +84,10 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
           </div>
         </div>
 
+        {/* Upcoming shows */}
         <h2 className="text-lg font-semibold mb-4">Upcoming shows</h2>
         {upcomingEvents && upcomingEvents.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-3 mb-8">
             {upcomingEvents.map((event: any) => {
               const date = new Date(event.event_date)
               return (
@@ -102,7 +104,7 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
                         {event.venues && (
                           <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
                         )}
-                        <span>🕐 {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                        <span>🕐 {formatDate(date)} at {formatTime(date)}</span>
                       </div>
                     </div>
                     {event.is_free
@@ -117,10 +119,51 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
             })}
           </div>
         ) : (
-          <div className="bg-gray-900 rounded-2xl p-6 text-center">
+          <div className="bg-gray-900 rounded-2xl p-6 text-center mb-8">
             <p className="text-gray-500">No upcoming shows scheduled</p>
           </div>
         )}
+
+        {/* Past shows */}
+        {pastEvents && pastEvents.length > 0 && (
+          <div>
+            <h2 className="text-lg font-semibold mb-4 text-gray-400">Past shows</h2>
+            <div className="space-y-3">
+              {pastEvents.map((event: any) => {
+                const date = new Date(event.event_date)
+                return (
+                  <a
+                    key={event.id}
+                    href={`/events/${event.id}`}
+                    className="bg-gray-900 rounded-2xl p-5 hover:bg-gray-800 transition-colors flex items-center gap-4 opacity-70 hover:opacity-100"
+                  >
+                    <div className="shrink-0 w-14 text-center bg-gray-800 rounded-xl p-2">
+                      <p className="text-gray-500 text-xs font-medium uppercase">{formatDate(date).split(' ')[0]}</p>
+                      <p className="text-gray-300 text-2xl font-bold leading-none">{date.getDate()}</p>
+                      <p className="text-gray-600 text-xs">{formatDate(date).split(',')[0]}</p>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-300 truncate">{event.title}</p>
+                      <div className="flex gap-3 mt-1 text-xs text-gray-600 flex-wrap">
+                        {event.venues && (
+                          <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
+                        )}
+                        <span>🕐 {formatDate(date)} at {formatTime(date)}</span>
+                      </div>
+                    </div>
+                    {event.cover_image_url && (
+                      <div className="shrink-0 w-14 h-14 rounded-lg overflow-hidden opacity-50">
+                        <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover grayscale" />
+                      </div>
+                    )}
+                    <span className="shrink-0 px-2 py-1 bg-gray-800 text-gray-600 text-xs rounded-lg">Past</span>
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
       </div>
     </main>
   )
