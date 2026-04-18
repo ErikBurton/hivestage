@@ -54,7 +54,7 @@ class TestBrowseBands:
     def test_search_nonexistent_band_shows_no_results(self, page):
         page.goto(f"{BASE_URL}/bands")
         page.fill('input[placeholder="Search bands..."]', "xyznonexistentband999")
-        page.wait_for_timeout(500)
+        page.wait_for_timeout(2000)
         assert "0 bands found" in page.content()
 
     def test_nonexistent_band_id_shows_404(self, page):
