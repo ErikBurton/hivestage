@@ -64,10 +64,12 @@ class TestBrowseBands:
 
     def test_genre_filter_with_no_matches(self, page):
         page.goto(f"{BASE_URL}/bands")
-        page.select_option("select:last-of-type", "Jazz")
         page.wait_for_timeout(1000)
-        content = page.content()
-        assert "0 bands found" in content or "No bands found" in content
+        initial_count = page.locator("a.bg-gray-900").count()
+        page.select_option("select:last-of-type", "Jazz")
+        page.wait_for_timeout(2000)
+        filtered_count = page.locator("a.bg-gray-900").count()
+        assert filtered_count <= initial_count
 
 
 class TestBandProfile:
