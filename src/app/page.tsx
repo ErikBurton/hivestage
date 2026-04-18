@@ -18,6 +18,7 @@ export default async function HomePage() {
       venues ( id, city, profiles ( display_name ) ),
       event_bands ( bands ( id, profiles ( display_name ) ) )
     `)
+    .gte('event_date', new Date().toISOString())
     .order('event_date', { ascending: true })
     .limit(3)
 

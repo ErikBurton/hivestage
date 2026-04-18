@@ -41,6 +41,7 @@ export default function EventsPage() {
           bands ( id, genres, profiles ( display_name ) )
         )
       `)
+      .gte('event_date', new Date().toISOString())
       .order('event_date', { ascending: true })
 
     if (freeOnly) query = query.eq('is_free', true)
