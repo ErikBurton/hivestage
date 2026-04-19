@@ -50,7 +50,7 @@ export default async function AdminPage({
     .from('bands')
     .select(`
       *,
-      profiles ( display_name, avatar_url, created_at, website, instagram )
+      profiles ( display_name, avatar_url, created_at, website, instagram, email )
     `)
     .order('created_at', { ascending: false })
 
@@ -58,7 +58,7 @@ export default async function AdminPage({
     .from('venues')
     .select(`
       *,
-      profiles ( display_name, avatar_url, created_at, website, instagram )
+      profiles ( display_name, avatar_url, created_at, website, instagram, email )
     `)
     .order('created_at', { ascending: false })
 
@@ -117,6 +117,7 @@ export default async function AdminPage({
                   <tr className="border-b border-gray-800">
                     <th className="text-left text-gray-500 font-medium p-4">Band</th>
                     <th className="text-left text-gray-500 font-medium p-4">City</th>
+                    <th className="text-left text-gray-500 font-medium p-4">Email</th>
                     <th className="text-left text-gray-500 font-medium p-4">Genres</th>
                     <th className="text-left text-gray-500 font-medium p-4">Joined</th>
                     <th className="text-left text-gray-500 font-medium p-4">Links</th>
@@ -141,6 +142,7 @@ export default async function AdminPage({
                           </div>
                         </td>
                         <td className="p-4 text-gray-400">{band.city || '—'}</td>
+                        <td className="p-4 text-gray-400 text-xs">{band.profiles?.email || '—'}</td>
                         <td className="p-4">
                           <div className="flex flex-wrap gap-1">
                             {band.genres?.slice(0, 2).map((g: string) => (
@@ -212,6 +214,7 @@ export default async function AdminPage({
                   <tr className="border-b border-gray-800">
                     <th className="text-left text-gray-500 font-medium p-4">Venue</th>
                     <th className="text-left text-gray-500 font-medium p-4">City</th>
+                    <th className="text-left text-gray-500 font-medium p-4">Email</th>
                     <th className="text-left text-gray-500 font-medium p-4">Capacity</th>
                     <th className="text-left text-gray-500 font-medium p-4">Joined</th>
                     <th className="text-left text-gray-500 font-medium p-4">Links</th>
@@ -236,6 +239,7 @@ export default async function AdminPage({
                           </div>
                         </td>
                         <td className="p-4 text-gray-400">{venue.city || '—'}</td>
+                        <td className="p-4 text-gray-400 text-xs">{venue.profiles?.email || '—'}</td>
                         <td className="p-4 text-gray-400">{venue.capacity ? venue.capacity.toLocaleString() : '—'}</td>
                         <td className="p-4 text-gray-400 text-xs">
                           {formatDate(new Date(venue.profiles?.created_at))}
@@ -281,6 +285,7 @@ export default async function AdminPage({
                 <thead>
                   <tr className="border-b border-gray-800">
                     <th className="text-left text-gray-500 font-medium p-4">Name</th>
+                    <th className="text-left text-gray-500 font-medium p-4">Email</th>
                     <th className="text-left text-gray-500 font-medium p-4">Joined</th>
                     <th className="p-4"></th>
                   </tr>
@@ -302,6 +307,7 @@ export default async function AdminPage({
                             <span className="font-medium">{fan.display_name}</span>
                           </div>
                         </td>
+                        <td className="p-4 text-gray-400 text-xs">{fan.email || '—'}</td>
                         <td className="p-4 text-gray-400 text-xs">
                           {formatDate(new Date(fan.created_at))}
                         </td>
