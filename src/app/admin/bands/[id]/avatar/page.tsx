@@ -71,7 +71,7 @@ export default function AdminBandAvatarPage({ params }: { params: { id: string }
     setError('')
 
     const fileExt = file.name.split('.').pop()
-    const filePath = `${profileId}/avatar.${fileExt}`
+    const filePath = `${profileId}/avatar-${Date.now()}.${fileExt}`
 
     const { error: uploadError } = await supabase.storage
       .from('avatars')
