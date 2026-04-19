@@ -93,6 +93,10 @@ export default function AdminBandAvatarPage({ params }: { params: { id: string }
       .update({ avatar_url: publicUrl })
       .eq('id', profileId)
 
+    console.log('profileId:', profileId)
+    console.log('publicUrl:', publicUrl)
+    console.log('updateError:', updateError)
+
     if (updateError) {
       setError(updateError.message)
       setUploading(false)
