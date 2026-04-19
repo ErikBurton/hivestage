@@ -11,6 +11,7 @@ export default async function LoginPage() {
       venues ( city, profiles ( display_name ) ),
       event_bands ( bands ( profiles ( display_name ) ) )
     `)
+    .gte('event_date', new Date().toISOString())
     .order('event_date', { ascending: true })
     .limit(5)
 
