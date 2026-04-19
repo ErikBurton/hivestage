@@ -239,7 +239,11 @@ export default async function AdminPage({
                           </div>
                         </td>
                         <td className="p-4 text-gray-400">{venue.city || '—'}</td>
-                        <td className="p-4 text-gray-400 text-xs">{venue.profiles?.email || '—'}</td>
+                        <td className="p-4 text-gray-400 text-xs">
+                          {venue.profiles?.email && !venue.profiles.email.includes('@venue.hivestage.live') 
+                            ? venue.profiles.email 
+                            : '—'}
+                        </td>
                         <td className="p-4 text-gray-400">{venue.capacity ? venue.capacity.toLocaleString() : '—'}</td>
                         <td className="p-4 text-gray-400 text-xs">
                           {formatDate(new Date(venue.profiles?.created_at))}
