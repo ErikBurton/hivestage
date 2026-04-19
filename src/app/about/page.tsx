@@ -109,12 +109,12 @@ export default function AboutPage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-gray-800 px-8 py-6 flex items-center justify-between text-gray-600 text-sm max-w-3xl mx-auto">
+      <footer className="border-t border-gray-800 px-8 py-6 max-w-3xl mx-auto flex items-center justify-between text-gray-600 text-sm">
         <span className="text-yellow-400 font-bold">HiveStage</span>
         <div className="flex items-center gap-6">
           <a href="/terms" className="hover:text-gray-400 transition-colors">Terms</a>
           <a href="/privacy" className="hover:text-gray-400 transition-colors">Privacy</a>
-          <span>Utah's home for live music</span>
+          <span>© {new Date().getFullYear()} HiveStage</span>
         </div>
       </footer>
 
