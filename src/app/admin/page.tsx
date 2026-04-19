@@ -165,11 +165,19 @@ export default async function AdminPage({
                           </div>
                         </td>
                         <td className="p-4">
-                          <form action={deleteUserWithId}>
-                            <button className="px-3 py-1 text-xs bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors">
-                              Delete
-                            </button>
-                          </form>
+                          <div className="flex gap-2">
+                            <a
+                              href={`/admin/bands/${band.id}/avatar`}
+                              className="px-3 py-1 text-xs bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                            >
+                              Avatar
+                            </a>
+                            <form action={deleteUserWithId}>
+                              <button className="px-3 py-1 text-xs bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors">
+                                Delete
+                              </button>
+                            </form>
+                          </div>
                         </td>
                       </tr>
                     )
