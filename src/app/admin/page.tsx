@@ -173,6 +173,12 @@ export default async function AdminPage({
                         </td>
                         <td className="p-4">
                           <div className="flex gap-2">
+                            <a 
+                              href={`/admin/bands/${band.id}/edit`}
+                              className="px-3 py-1 text-xs bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                            >
+                              Edit
+                            </a>
                             <a
                               href={`/admin/bands/${band.id}/avatar`}
                               className="px-3 py-1 text-xs bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
