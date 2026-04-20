@@ -83,10 +83,15 @@ export default async function AdminPage({
           </a>
         </div>
 
-        {/* Success message */}
+        {/* Success messages */}
         {success === 'venue_created' && (
           <div className="bg-green-950 border border-green-800 text-green-400 rounded-xl px-4 py-3 text-sm mb-6">
             Venue created successfully!
+          </div>
+        )}
+        {success === 'event_created' && (
+          <div className="bg-green-950 border border-green-800 text-green-400 rounded-xl px-4 py-3 text-sm mb-6">
+            Event created successfully!
           </div>
         )}
 
@@ -337,9 +342,17 @@ export default async function AdminPage({
 
         {/* Events */}
         <div>
-          <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">
-            All Events ({totalEvents})
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-gray-500 text-xs font-medium uppercase tracking-widest">
+              All Events ({totalEvents})
+            </p>
+            <a
+              href="/admin/events/new"
+              className="px-4 py-2 text-sm bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
+            >
+              + Add event
+            </a>
+          </div>
           {events && events.length > 0 ? (
             <div className="bg-gray-900 rounded-2xl overflow-hidden overflow-x-auto">
               <table className="w-full text-sm">
