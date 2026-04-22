@@ -1,11 +1,8 @@
-@pytest.fixture(autouse=True)
-def trace_on_failure(browser, request):
-    context = browser.new_context()
-    context.tracing.start(screenshots=True, snapshots=True, sources=True)
-    page = context.new_page()
-    yield page
-    if request.node.rep_call.failed:
-        context.tracing.stop(path=f"traces/{request.node.name}.zip")
-    else:
-        context.tracing.stop()
-    context.close()
+import pytest
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    setattr(item, f"rep_{rep.when}", rep)
