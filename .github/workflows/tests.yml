@@ -48,7 +48,7 @@ jobs:
           npx wait-on http://localhost:3000 --timeout 60000
 
       - name: Run tests
-        run: pytest tests/ -v
+        run: pytest tests/ -v --tracing=retain-on-failure
         env:
           TEST_BASE_URL: http://localhost:3000
           TEST_BAND_EMAIL: ${{ secrets.TEST_BAND_EMAIL }}
@@ -57,10 +57,10 @@ jobs:
           TEST_FAN_PASSWORD: ${{ secrets.TEST_FAN_PASSWORD }}
           TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
           TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
-
-      - name: Upload test results on failure
+      
+      - name: Upload traces on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: playwright-traces
           path: test-results/
