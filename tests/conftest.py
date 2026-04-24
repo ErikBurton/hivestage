@@ -19,26 +19,6 @@ def browser_context_args(browser_context_args):
     return {**browser_context_args, "record_video_dir": None}
 
 
-@pytest.fixture(autouse=True)
-def trace_on_failure(context, request):
-    context.tracing.start(screenshots=True, snapshots=True, sources=True)
-    yield
-    if request.node.rep_call.failed if hasattr(request.node, "rep_call") else False:
-        os.makedirs("test-results", exist_ok=True)
-        trace_path = f"test-results/{request.node.name}.zip"
-        context.tracing.stop(path=trace_path)
-        print(f"\nTrace saved to: {trace_path}")
-    else:
-        context.tracing.stop()
-
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    outcome = yield
-    rep = outcome.get_result()
-    setattr(item, f"rep_{rep.when}", rep)
-
-
 @pytest.fixture
 def page(context):
     page = context.new_page()
