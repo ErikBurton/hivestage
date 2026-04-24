@@ -26,6 +26,7 @@ export default async function DashboardPage() {
     .from('events')
     .select(`*, venues ( id, city, profiles ( display_name ) )`)
     .eq('created_by', user.id)
+    .gte('event_date', new Date().toISOString())
     .order('event_date', { ascending: true })
 
   let followingEvents: any[] = []

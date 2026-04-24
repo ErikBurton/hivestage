@@ -15,42 +15,48 @@ ADMIN_PASSWORD = os.getenv("TEST_ADMIN_PASSWORD")
 
 
 @pytest.fixture(scope="session")
-def base_url():
-    return BASE_URL
+def browser_context_args(browser_context_args):
+    return {**browser_context_args, "record_video_dir": None}
 
 
 @pytest.fixture
-def page(browser):
-    page = browser.new_page()
+def page(context):
+    page = context.new_page()
     yield page
     page.close()
 
 
 @pytest.fixture
-def logged_in_band(page):
+def logged_in_band(context):
+    page = context.new_page()
     page.goto(f"{BASE_URL}/login")
     page.fill('input[type="email"]', BAND_EMAIL)
     page.fill('input[type="password"]', BAND_PASSWORD)
     page.click('button:has-text("Log in")')
     page.wait_for_url(f"{BASE_URL}/dashboard", timeout=60000)
     yield page
+    page.close()
 
 
 @pytest.fixture
-def logged_in_fan(page):
+def logged_in_fan(context):
+    page = context.new_page()
     page.goto(f"{BASE_URL}/login")
     page.fill('input[type="email"]', FAN_EMAIL)
     page.fill('input[type="password"]', FAN_PASSWORD)
     page.click('button:has-text("Log in")')
-    page.wait_for_url(f"{BASE_URL}/dashboard")
+    page.wait_for_url(f"{BASE_URL}/dashboard", timeout=60000)
     yield page
+    page.close()
 
 
 @pytest.fixture
-def logged_in_admin(page):
+def logged_in_admin(context):
+    page = context.new_page()
     page.goto(f"{BASE_URL}/login")
     page.fill('input[type="email"]', ADMIN_EMAIL)
     page.fill('input[type="password"]', ADMIN_PASSWORD)
     page.click('button:has-text("Log in")')
     page.wait_for_url(f"{BASE_URL}/dashboard", timeout=60000)
     yield page
+    page.close()

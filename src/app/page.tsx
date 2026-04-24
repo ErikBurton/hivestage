@@ -112,7 +112,7 @@ export default async function HomePage() {
           <a href="/about" className="hover:text-gray-400 transition-colors">About</a>
           <a href="/terms" className="hover:text-gray-400 transition-colors">Terms</a>
           <a href="/privacy" className="hover:text-gray-400 transition-colors">Privacy</a>
-          <span>Utah's home for live music</span>
+          <span>© {new Date().getFullYear()} HiveStage · Utah's home for live music</span>
         </div>
       </footer>
     </main>

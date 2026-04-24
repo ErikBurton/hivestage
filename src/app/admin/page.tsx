@@ -50,7 +50,7 @@ export default async function AdminPage({
     .from('bands')
     .select(`
       *,
-      profiles ( display_name, avatar_url, created_at, website, instagram )
+      profiles ( display_name, avatar_url, created_at, website, instagram, email )
     `)
     .order('created_at', { ascending: false })
 
@@ -58,7 +58,7 @@ export default async function AdminPage({
     .from('venues')
     .select(`
       *,
-      profiles ( display_name, avatar_url, created_at, website, instagram )
+      profiles ( display_name, avatar_url, created_at, website, instagram, email )
     `)
     .order('created_at', { ascending: false })
 
@@ -69,7 +69,7 @@ export default async function AdminPage({
   const totalEvents = events?.length || 0
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white p-8">
+    <main className="min-h-screen bg-gray-950 text-white p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}
@@ -83,10 +83,15 @@ export default async function AdminPage({
           </a>
         </div>
 
-        {/* Success message */}
+        {/* Success messages */}
         {success === 'venue_created' && (
           <div className="bg-green-950 border border-green-800 text-green-400 rounded-xl px-4 py-3 text-sm mb-6">
             Venue created successfully!
+          </div>
+        )}
+        {success === 'event_created' && (
+          <div className="bg-green-950 border border-green-800 text-green-400 rounded-xl px-4 py-3 text-sm mb-6">
+            Event created successfully!
           </div>
         )}
 
@@ -111,15 +116,16 @@ export default async function AdminPage({
             Bands ({totalBands})
           </p>
           {bands && bands.length > 0 ? (
-            <div className="bg-gray-900 rounded-2xl overflow-hidden">
+            <div className="bg-gray-900 rounded-2xl overflow-hidden overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-800">
                     <th className="text-left text-gray-500 font-medium p-4">Band</th>
-                    <th className="text-left text-gray-500 font-medium p-4">City</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Genres</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Joined</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Links</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden md:table-cell">City</th>
+                    <th className="text-left text-gray-500 font-medium p-4">Email</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden lg:table-cell">Genres</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden md:table-cell">Joined</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden lg:table-cell">Links</th>
                     <th className="p-4"></th>
                   </tr>
                 </thead>
@@ -140,8 +146,9 @@ export default async function AdminPage({
                             <span className="font-medium">{band.profiles?.display_name}</span>
                           </div>
                         </td>
-                        <td className="p-4 text-gray-400">{band.city || '—'}</td>
-                        <td className="p-4">
+                        <td className="p-4 text-gray-400 hidden md:table-cell">{band.city || '—'}</td>
+                        <td className="p-4 text-gray-400 text-xs">{band.profiles?.email || '—'}</td>
+                        <td className="p-4 hidden lg:table-cell">
                           <div className="flex flex-wrap gap-1">
                             {band.genres?.slice(0, 2).map((g: string) => (
                               <span key={g} className="px-2 py-0.5 bg-gray-800 text-yellow-400 text-xs rounded-full">{g}</span>
@@ -151,10 +158,10 @@ export default async function AdminPage({
                             )}
                           </div>
                         </td>
-                        <td className="p-4 text-gray-400 text-xs">
+                        <td className="p-4 text-gray-400 text-xs hidden md:table-cell">
                           {formatDate(new Date(band.profiles?.created_at))}
                         </td>
-                        <td className="p-4">
+                        <td className="p-4 hidden lg:table-cell">
                           <div className="flex gap-3">
                             {band.profiles?.website && (
                               <a href={band.profiles.website} target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline text-xs">Web</a>
@@ -165,11 +172,25 @@ export default async function AdminPage({
                           </div>
                         </td>
                         <td className="p-4">
-                          <form action={deleteUserWithId}>
-                            <button className="px-3 py-1 text-xs bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors">
-                              Delete
-                            </button>
-                          </form>
+                          <div className="flex gap-2">
+                            <a 
+                              href={`/admin/bands/${band.id}/edit`}
+                              className="px-3 py-1 text-xs bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                            >
+                              Edit
+                            </a>
+                            <a
+                              href={`/admin/bands/${band.id}/avatar`}
+                              className="px-3 py-1 text-xs bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
+                            >
+                              Avatar
+                            </a>
+                            <form action={deleteUserWithId}>
+                              <button className="px-3 py-1 text-xs bg-red-950 text-red-400 rounded-lg hover:bg-red-900 transition-colors">
+                                Delete
+                              </button>
+                            </form>
+                          </div>
                         </td>
                       </tr>
                     )
@@ -198,15 +219,16 @@ export default async function AdminPage({
             </a>
           </div>
           {venues && venues.length > 0 ? (
-            <div className="bg-gray-900 rounded-2xl overflow-hidden">
+            <div className="bg-gray-900 rounded-2xl overflow-hidden overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-800">
                     <th className="text-left text-gray-500 font-medium p-4">Venue</th>
-                    <th className="text-left text-gray-500 font-medium p-4">City</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Capacity</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Joined</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Links</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden md:table-cell">City</th>
+                    <th className="text-left text-gray-500 font-medium p-4">Email</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden lg:table-cell">Capacity</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden md:table-cell">Joined</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden lg:table-cell">Links</th>
                     <th className="p-4"></th>
                   </tr>
                 </thead>
@@ -227,12 +249,17 @@ export default async function AdminPage({
                             <span className="font-medium">{venue.profiles?.display_name}</span>
                           </div>
                         </td>
-                        <td className="p-4 text-gray-400">{venue.city || '—'}</td>
-                        <td className="p-4 text-gray-400">{venue.capacity ? venue.capacity.toLocaleString() : '—'}</td>
+                        <td className="p-4 text-gray-400 hidden md:table-cell">{venue.city || '—'}</td>
                         <td className="p-4 text-gray-400 text-xs">
+                          {venue.profiles?.email && !venue.profiles.email.includes('@venue.hivestage.live')
+                            ? venue.profiles.email
+                            : '—'}
+                        </td>
+                        <td className="p-4 text-gray-400 hidden lg:table-cell">{venue.capacity ? venue.capacity.toLocaleString() : '—'}</td>
+                        <td className="p-4 text-gray-400 text-xs hidden md:table-cell">
                           {formatDate(new Date(venue.profiles?.created_at))}
                         </td>
-                        <td className="p-4">
+                        <td className="p-4 hidden lg:table-cell">
                           <div className="flex gap-3">
                             {venue.profiles?.website && (
                               <a href={venue.profiles.website} target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:underline text-xs">Web</a>
@@ -268,12 +295,13 @@ export default async function AdminPage({
             Fans ({fans.length})
           </p>
           {fans.length > 0 ? (
-            <div className="bg-gray-900 rounded-2xl overflow-hidden">
+            <div className="bg-gray-900 rounded-2xl overflow-hidden overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-800">
                     <th className="text-left text-gray-500 font-medium p-4">Name</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Joined</th>
+                    <th className="text-left text-gray-500 font-medium p-4">Email</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden md:table-cell">Joined</th>
                     <th className="p-4"></th>
                   </tr>
                 </thead>
@@ -294,7 +322,8 @@ export default async function AdminPage({
                             <span className="font-medium">{fan.display_name}</span>
                           </div>
                         </td>
-                        <td className="p-4 text-gray-400 text-xs">
+                        <td className="p-4 text-gray-400 text-xs">{fan.email || '—'}</td>
+                        <td className="p-4 text-gray-400 text-xs hidden md:table-cell">
                           {formatDate(new Date(fan.created_at))}
                         </td>
                         <td className="p-4">
@@ -319,19 +348,27 @@ export default async function AdminPage({
 
         {/* Events */}
         <div>
-          <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">
-            All Events ({totalEvents})
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-gray-500 text-xs font-medium uppercase tracking-widest">
+              All Events ({totalEvents})
+            </p>
+            <a
+              href="/admin/events/new"
+              className="px-4 py-2 text-sm bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
+            >
+              + Add event
+            </a>
+          </div>
           {events && events.length > 0 ? (
-            <div className="bg-gray-900 rounded-2xl overflow-hidden">
+            <div className="bg-gray-900 rounded-2xl overflow-hidden overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-800">
                     <th className="text-left text-gray-500 font-medium p-4">Event</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Band</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Venue</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Date</th>
-                    <th className="text-left text-gray-500 font-medium p-4">Free</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden md:table-cell">Band</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden md:table-cell">Venue</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden lg:table-cell">Date</th>
+                    <th className="text-left text-gray-500 font-medium p-4 hidden lg:table-cell">Free</th>
                     <th className="p-4"></th>
                   </tr>
                 </thead>
@@ -347,12 +384,12 @@ export default async function AdminPage({
                           <p className={`font-medium ${isPast ? 'text-gray-500' : 'text-white'}`}>{event.title}</p>
                           {isPast && <span className="text-xs text-gray-600">Past event</span>}
                         </td>
-                        <td className="p-4 text-gray-400">{bandNames?.join(', ') || '—'}</td>
-                        <td className="p-4 text-gray-400">{event.venues?.profiles?.display_name || '—'}</td>
-                        <td className="p-4 text-gray-400 text-xs">
+                        <td className="p-4 text-gray-400 hidden md:table-cell">{bandNames?.join(', ') || '—'}</td>
+                        <td className="p-4 text-gray-400 hidden md:table-cell">{event.venues?.profiles?.display_name || '—'}</td>
+                        <td className="p-4 text-gray-400 text-xs hidden lg:table-cell">
                           {formatDate(date)}
                         </td>
-                        <td className="p-4">
+                        <td className="p-4 hidden lg:table-cell">
                           {event.is_free
                             ? <span className="text-green-400 text-xs font-medium">Free</span>
                             : <span className="text-gray-500 text-xs">Paid</span>

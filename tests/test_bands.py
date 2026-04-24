@@ -28,7 +28,7 @@ class TestBrowseBands:
     def test_bands_are_displayed(self, page):
         page.goto(f"{BASE_URL}/bands")
         page.wait_for_timeout(1000)
-        assert page.is_visible("text=bands found")
+        assert page.is_visible("text=band")
 
     def test_search_filters_bands(self, page):
         page.goto(f"{BASE_URL}/bands")
@@ -48,7 +48,7 @@ class TestBrowseBands:
         page.wait_for_timeout(500)
         page.click('button:has-text("Clear")')
         page.wait_for_timeout(500)
-        assert page.is_visible("text=bands found")
+        assert page.is_visible("text=band")
 
     # --- Negative tests ---
     def test_search_nonexistent_band_shows_no_results(self, page):

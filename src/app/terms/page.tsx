@@ -95,6 +95,14 @@ export default function TermsPage() {
 
         </div>
       </div>
+      <footer className="border-t border-gray-800 px-8 py-6 max-w-3xl mx-auto flex items-center justify-between text-gray-600 text-sm mt-8">
+        <span className="text-yellow-400 font-bold">HiveStage</span>
+        <div className="flex items-center gap-6">
+          <a href="/about" className="hover:text-gray-400 transition-colors">About</a>
+          <a href="/privacy" className="hover:text-gray-400 transition-colors">Privacy</a>
+          <span>© {new Date().getFullYear()} HiveStage</span>
+        </div>
+      </footer>
     </main>
   )
 }

@@ -22,6 +22,7 @@ class TestLogin:
         login = LoginPage(page)
         login.navigate()
         assert "HiveStage" in page.content()
+        # assert "ThisTextDoesNotExist" in page.content()
 
     def test_successful_band_login(self, page):
         login = LoginPage(page)
