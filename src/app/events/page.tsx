@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
 import { formatTime, formatMonthShort, formatDayNumber, formatWeekdayShort } from '@/lib/dateUtils'
+import AddToCalendarButton from '@/components/AddToCalendarButton'
 
 const UTAH_CITIES = [
   'Alpine', 'American Fork', 'Bountiful', 'Cedar City', 'Cedar Hills',
@@ -119,49 +120,62 @@ export default function EventsPage() {
             {events.map((event: any) => {
               const date = new Date(event.event_date)
               return (
-                <a
-                  key={event.id}
-                  href={`/events/${event.id}`}
-                  className="bg-gray-900 rounded-2xl p-5 hover:bg-gray-800 transition-colors flex items-center gap-4"
-                >
-                  <div className="shrink-0 w-14 text-center bg-gray-800 rounded-xl p-2">
-                    <p className="text-yellow-400 text-xs font-medium uppercase">{formatMonthShort(date)}</p>
-                    <p className="text-white text-2xl font-bold leading-none">{formatDayNumber(date)}</p>
-                    <p className="text-gray-500 text-xs">{formatWeekdayShort(date)}</p>
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-base font-semibold truncate">{event.title}</h2>
-                    {event.event_bands?.length > 0 && (
-                      <p className="text-sm mt-0.5">
-                        {event.event_bands.map((eb: any, i: number) => (
-                          <span key={eb.bands?.id} className="text-yellow-400">
-                            {eb.bands?.profiles?.display_name}
-                            {i < event.event_bands.length - 1 ? ', ' : ''}
-                          </span>
-                        ))}
-                      </p>
-                    )}
-                    <div className="flex flex-wrap gap-3 mt-1 text-xs text-gray-500">
-                      {event.venues && (
-                        <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
-                      )}
-                      <span>🕐 {formatTime(date)}</span>
-                      {event.is_free && <span className="text-green-400 font-medium">Free</span>}
+                <div key={event.id} className="bg-gray-900 rounded-2xl overflow-hidden">
+                  <a
+                    href={`/events/${event.id}`}
+                    className="p-5 hover:bg-gray-800 transition-colors flex items-center gap-4 block"
+                  >
+                    <div className="shrink-0 w-14 text-center bg-gray-800 rounded-xl p-2">
+                      <p className="text-yellow-400 text-xs font-medium uppercase">{formatMonthShort(date)}</p>
+                      <p className="text-white text-2xl font-bold leading-none">{formatDayNumber(date)}</p>
+                      <p className="text-gray-500 text-xs">{formatWeekdayShort(date)}</p>
                     </div>
-                  </div>
 
-                  <div className="shrink-0 flex flex-col items-end gap-2">
-                    {event.cover_image_url && (
-                      <div className="w-16 h-16 rounded-lg overflow-hidden">
-                        <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-base font-semibold truncate">{event.title}</h2>
+                      {event.event_bands?.length > 0 && (
+                        <p className="text-sm mt-0.5">
+                          {event.event_bands.map((eb: any, i: number) => (
+                            <span key={eb.bands?.id} className="text-yellow-400">
+                              {eb.bands?.profiles?.display_name}
+                              {i < event.event_bands.length - 1 ? ', ' : ''}
+                            </span>
+                          ))}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-3 mt-1 text-xs text-gray-500">
+                        {event.venues && (
+                          <span>📍 {event.venues.profiles?.display_name}{event.venues.city ? `, ${event.venues.city}` : ''}</span>
+                        )}
+                        <span>🕐 {formatTime(date)}</span>
+                        {event.is_free && <span className="text-green-400 font-medium">Free</span>}
                       </div>
-                    )}
-                    {event.ticket_url && !event.is_free && (
-                      <span className="px-3 py-1 bg-yellow-400 text-gray-950 font-semibold rounded-lg text-xs">Tickets</span>
-                    )}
+                    </div>
+
+                    <div className="shrink-0 flex flex-col items-end gap-2">
+                      {event.cover_image_url && (
+                        <div className="w-16 h-16 rounded-lg overflow-hidden">
+                          <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      {event.ticket_url && !event.is_free && (
+                        <span className="px-3 py-1 bg-yellow-400 text-gray-950 font-semibold rounded-lg text-xs">Tickets</span>
+                      )}
+                    </div>
+                  </a>
+
+                  <div className="px-5 pb-4">
+                    <AddToCalendarButton
+                      title={event.title}
+                      date={event.event_date}
+                      location={[
+                        event.venues?.profiles?.display_name,
+                        event.venues?.city ? `${event.venues.city}, Utah` : null
+                      ].filter(Boolean).join(', ')}
+                      description=""
+                    />
                   </div>
-                </a>
+                </div>
               )
             })}
           </div>

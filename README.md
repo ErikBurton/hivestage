@@ -8,7 +8,7 @@ Utah's home for live music. HiveStage connects local bands, venues, and fans acr
 
 ## Tech Stack
 
-- **Frontend:** Next.js 16.2.2 (App Router, Turbopack)
+- **Frontend:** Next.js 16.2.4 (App Router, Turbopack)
 - **Backend:** Supabase (PostgreSQL, Auth, Storage)
 - **Styling:** Tailwind CSS
 - **Email:** Resend
@@ -83,7 +83,7 @@ Visit [http://localhost:3000](http://localhost:3000)
 
 ## Testing
 
-HiveStage uses **Playwright + Pytest** with the **Page Object Model (POM)** pattern for end-to-end testing.
+HiveStage uses **Playwright + Pytest** with the **Page Object Model (POM)** pattern for end-to-end testing across 102 tests.
 
 ### Test structure
 
@@ -100,8 +100,42 @@ tests/
 ├── test_auth.py             # Auth tests
 ├── test_events.py           # Event tests
 ├── test_bands.py            # Band tests
-└── test_admin.py            # Admin tests
+├── test_admin.py            # Admin tests
+└── test_archive.py          # Archive tests
 ```
+
+### Test Supabase project
+
+CI runs against a **separate Supabase test project** (`hivestage-test`) to avoid consuming production egress quota. The test project has its own schema, auth users, and seed data.
+
+To set up a fresh test project:
+
+1. Create a new Supabase project
+2. Run `supabase/schema.sql` in the SQL Editor to create all tables, RLS policies, and storage buckets
+3. Go to **Authentication → Users** and create:
+   - `erikburton1@gmail.com` — band + admin user
+   - `erikburton1+fan@gmail.com` — fan user
+   - `erikburton1+band2@gmail.com` — Standard DeViation band user
+4. In the SQL Editor, seed the required test data:
+
+```sql
+-- Set admin user (replace with actual UUIDs from Authentication > Users)
+update public.profiles set account_type = 'admin', is_admin = true
+where id = '<band-user-uuid>';
+
+-- Create Standard DeViation band with the hardcoded test ID
+insert into public.bands (id, user_id, genres)
+values (
+  '46c54538-0bdc-4602-b572-95aa427ae0d5',
+  '<band2-user-uuid>',
+  ARRAY['Rock', 'Indie']
+);
+```
+
+5. Add these GitHub Actions secrets to the repo:
+   - `TEST_NEXT_PUBLIC_SUPABASE_URL`
+   - `TEST_NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `TEST_SUPABASE_SERVICE_ROLE_KEY`
 
 ### Run tests locally
 
@@ -140,12 +174,12 @@ pytest tests/ -v --headed
 
 ## CI/CD
 
-GitHub Actions automatically runs all 45 tests on every push to `main`, `develop`, and `feature/**` branches.
+GitHub Actions automatically runs all 102 tests on every push to `main`, `develop`, and `feature/**` branches.
 
 The pipeline:
 1. Installs Node and Python dependencies
 2. Installs Playwright browsers
-3. Starts the Next.js dev server
+3. Starts the Next.js dev server pointed at the **test Supabase project**
 4. Runs the full test suite
 5. Uploads test artifacts on failure
 
@@ -169,7 +203,7 @@ Supabase PostgreSQL with the following tables:
 - `event_bands` — junction table linking events to bands
 - `follows` — fan follows for bands
 
-Row Level Security (RLS) is enabled on all tables.
+Row Level Security (RLS) is enabled on all tables. The full schema is in `supabase/schema.sql`.
 
 ---
 
