@@ -147,3 +147,80 @@ class TestEventCreation:
         page.goto(f"{BASE_URL}/dashboard/events/new")
         page.wait_for_url(f"{BASE_URL}/login", timeout=10000)
         assert "/login" in page.url
+
+
+class TestAddToCalendar:
+    # --- Events list page ---
+    def test_add_to_calendar_button_visible_on_events_list(self, page):
+        events = EventsPage(page)
+        events.navigate()
+        page.wait_for_timeout(1000)
+        count = events.get_event_count()
+        if count > 0:
+            assert page.is_visible('button:has-text("Add to Calendar")')
+
+    def test_add_to_calendar_opens_dropdown(self, page):
+        events = EventsPage(page)
+        events.navigate()
+        page.wait_for_timeout(1000)
+        count = events.get_event_count()
+        if count > 0:
+            events.click_add_to_calendar()
+            assert page.is_visible('a:has-text("Google Calendar")')
+            assert page.is_visible('button:has-text("Apple Calendar")')
+            assert page.is_visible('button:has-text("Outlook")')
+
+    def test_add_to_calendar_closes_on_outside_click(self, page):
+        events = EventsPage(page)
+        events.navigate()
+        page.wait_for_timeout(1000)
+        count = events.get_event_count()
+        if count > 0:
+            events.click_add_to_calendar()
+            assert page.is_visible('a:has-text("Google Calendar")')
+            page.click("h1")
+            page.wait_for_timeout(300)
+            assert not page.is_visible('a:has-text("Google Calendar")')
+
+    def test_google_calendar_link_has_correct_url(self, page):
+        events = EventsPage(page)
+        events.navigate()
+        page.wait_for_timeout(1000)
+        count = events.get_event_count()
+        if count > 0:
+            events.click_add_to_calendar()
+            href = page.get_attribute('a:has-text("Google Calendar")', "href")
+            assert "calendar.google.com" in href
+            assert "action=TEMPLATE" in href
+
+    # --- Event detail page ---
+    def test_add_to_calendar_button_visible_on_detail_page(self, page):
+        events = EventsPage(page)
+        events.navigate()
+        page.wait_for_timeout(1000)
+        count = events.get_event_count()
+        if count > 0:
+            events.click_first_event()
+            page.wait_for_selector("h1", timeout=10000)
+            assert page.is_visible('button:has-text("Add to Calendar")')
+
+    def test_add_to_calendar_opens_on_detail_page(self, page):
+        events = EventsPage(page)
+        events.navigate()
+        page.wait_for_timeout(1000)
+        count = events.get_event_count()
+        if count > 0:
+            events.click_first_event()
+            page.wait_for_selector("h1", timeout=10000)
+            page.click('button:has-text("Add to Calendar")')
+            assert page.is_visible('a:has-text("Google Calendar")')
+
+    # --- Negative tests ---
+    def test_add_to_calendar_not_shown_when_no_events(self, page):
+        events = EventsPage(page)
+        events.navigate()
+        page.select_option("select:first-of-type", "Moab")
+        page.wait_for_timeout(2000)
+        count = events.get_event_count()
+        if count == 0:
+            assert not page.is_visible('button:has-text("Add to Calendar")')

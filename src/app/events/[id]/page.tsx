@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Nav from '@/components/Nav'
 import ShareButtons from '@/components/ShareButtons'
 import { formatTime, formatDateLong } from '@/lib/dateUtils'
+import AddToCalendarButton from '@/components/AddToCalendarButton'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -84,7 +85,19 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         <div className="bg-gray-900 rounded-2xl p-8 mb-6">
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-3xl font-bold">{event.title}</h1>
-            <ShareButtons url={eventUrl} title={event.title} />
+            <div className="flex items-center gap-2 shrink-0">
+              <AddToCalendarButton
+                title={event.title}
+                date={event.event_date}
+                location={[
+                  event.venues?.profiles?.display_name,
+                  event.venues?.address,
+                  event.venues?.city ? `${event.venues.city}, Utah` : null
+                ].filter(Boolean).join(', ')}
+                description={event.description || ''}
+              />
+              <ShareButtons url={eventUrl} title={event.title} />
+            </div>
           </div>
 
           <div className="space-y-3 text-sm">
