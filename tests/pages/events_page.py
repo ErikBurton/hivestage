@@ -5,7 +5,7 @@ class EventsPage(BasePage):
     URL = "/events"
 
     # Selectors
-    EVENT_CARDS = "div.bg-gray-900"
+    EVENT_CARDS = "div.bg-gray-900.rounded-2xl.overflow-hidden"
     CALENDAR_BUTTON = 'button:has-text("Add to Calendar")'
     CALENDAR_DROPDOWN = 'a:has-text("Google Calendar")'
     CITY_FILTER = "select:first-of-type"
@@ -33,7 +33,7 @@ class EventsPage(BasePage):
         return self.page.locator(self.EVENT_CARDS).count()
 
     def click_first_event(self):
-        self.page.locator("div.bg-gray-900 a").first.click()
+        self.page.locator("div.bg-gray-900.overflow-hidden a.block").first.click()
 
     def click_add_to_calendar(self, index=0):
         self.page.locator(self.CALENDAR_BUTTON).nth(index).click()
