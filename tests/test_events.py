@@ -90,7 +90,7 @@ class TestEventsPage:
         page.wait_for_timeout(1000)
         initial_count = events.get_event_count()
         # Apply a city filter
-        page.select_option("select:first-of-type", "Moab")
+        page.select_option("select:first-of-type", "Richfield")
         page.wait_for_timeout(2000)
         filtered_count = events.get_event_count()
         # Either no results or fewer results than before
@@ -219,7 +219,7 @@ class TestAddToCalendar:
     def test_add_to_calendar_not_shown_when_no_events(self, page):
         events = EventsPage(page)
         events.navigate()
-        page.select_option("select:first-of-type", "Moab")
+        page.select_option("select:first-of-type", "Richfield")
         page.wait_for_timeout(2000)
         count = events.get_event_count()
         if count == 0:
