@@ -4,9 +4,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { UTAH_CITIES } from '@/lib/cities'
 
-const GENRES = ['Rock', 'Pop', 'Hip Hop', 'Country', 'Jazz', 'Metal', 'Folk', 'Electronic', 'R&B', 'Punk', 'Indie', 'Blues']
-
-export default function AdminEditBandPage({ params }: { params: { id: string } }) {
+export default function AdminEditVenuePage({ params }: { params: { id: string } }) {
   const supabase = createClient()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -16,11 +14,11 @@ export default function AdminEditBandPage({ params }: { params: { id: string } }
   const [profileId, setProfileId] = useState('')
 
   const [displayName, setDisplayName] = useState('')
-  const [bio, setBio] = useState('')
+  const [address, setAddress] = useState('')
+  const [city, setCity] = useState('')
+  const [capacity, setCapacity] = useState('')
   const [website, setWebsite] = useState('')
   const [instagram, setInstagram] = useState('')
-  const [city, setCity] = useState('')
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([])
 
   useEffect(() => {
     async function load() {
@@ -38,31 +36,25 @@ export default function AdminEditBandPage({ params }: { params: { id: string } }
 
       if (!profile?.is_admin) { router.push('/dashboard'); return }
 
-      const { data: band } = await supabase
-        .from('bands')
+      const { data: venue } = await supabase
+        .from('venues')
         .select(`*, profiles ( * )`)
         .eq('id', id)
         .single()
 
-      if (!band) { router.push('/admin'); return }
+      if (!venue) { router.push('/admin'); return }
 
-      setProfileId(band.profile_id)
-      setDisplayName(band.profiles?.display_name || '')
-      setBio(band.profiles?.bio || '')
-      setWebsite(band.profiles?.website || '')
-      setInstagram(band.profiles?.instagram || '')
-      setCity(band.city || '')
-      setSelectedGenres(band.genres || [])
+      setProfileId(venue.profile_id)
+      setDisplayName(venue.profiles?.display_name || '')
+      setAddress(venue.address || '')
+      setCity(venue.city || '')
+      setCapacity(venue.capacity?.toString() || '')
+      setWebsite(venue.profiles?.website || '')
+      setInstagram(venue.profiles?.instagram || '')
       setLoading(false)
     }
     load()
   }, [])
-
-  function toggleGenre(genre: string) {
-    setSelectedGenres(prev =>
-      prev.includes(genre) ? prev.filter(g => g !== genre) : [...prev, genre]
-    )
-  }
 
   async function handleSave() {
     setSaving(true)
@@ -74,16 +66,20 @@ export default function AdminEditBandPage({ params }: { params: { id: string } }
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ display_name: displayName, bio, website, instagram })
+      .update({ display_name: displayName, website, instagram })
       .eq('id', profileId)
 
-    const { error: bandError } = await supabase
-      .from('bands')
-      .update({ city, genres: selectedGenres })
+    const { error: venueError } = await supabase
+      .from('venues')
+      .update({
+        address,
+        city,
+        capacity: capacity ? parseInt(capacity) : null,
+      })
       .eq('id', id)
 
-    if (profileError || bandError) {
-      setError(profileError?.message || bandError?.message || 'Save failed')
+    if (profileError || venueError) {
+      setError(profileError?.message || venueError?.message || 'Save failed')
       setSaving(false)
       return
     }
@@ -103,13 +99,13 @@ export default function AdminEditBandPage({ params }: { params: { id: string } }
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-2xl mx-auto">
         <a href="/admin" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to admin</a>
-        <h1 className="text-3xl font-bold text-yellow-400 mb-1">Edit Band</h1>
+        <h1 className="text-3xl font-bold text-yellow-400 mb-1">Edit Venue</h1>
         <p className="text-gray-400 mb-8">{displayName}</p>
 
         <div className="space-y-5">
           <div>
             <label className="text-gray-400 text-sm block mb-1">
-              Band name
+              Venue name
               <span className="text-gray-600 text-xs ml-2">{displayName.length}/100</span>
             </label>
             <input
@@ -121,16 +117,13 @@ export default function AdminEditBandPage({ params }: { params: { id: string } }
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-1">
-              Bio
-              <span className="text-gray-600 text-xs ml-2">{bio.length}/2000</span>
-            </label>
-            <textarea
-              maxLength={2000}
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400 h-32 resize-none"
-              placeholder="Tell fans about this band..."
-              value={bio}
-              onChange={e => setBio(e.target.value)}
+            <label className="text-gray-400 text-sm block mb-1">Address</label>
+            <input
+              maxLength={200}
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
+              placeholder="e.g. 741 S 330 W"
+              value={address}
+              onChange={e => setAddress(e.target.value)}
             />
           </div>
 
@@ -149,22 +142,14 @@ export default function AdminEditBandPage({ params }: { params: { id: string } }
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-2">Genres</label>
-            <div className="flex flex-wrap gap-2">
-              {GENRES.map(genre => (
-                <button
-                  key={genre}
-                  onClick={() => toggleGenre(genre)}
-                  className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                    selectedGenres.includes(genre)
-                      ? 'bg-yellow-400 text-gray-950 font-medium'
-                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                  }`}
-                >
-                  {genre}
-                </button>
-              ))}
-            </div>
+            <label className="text-gray-400 text-sm block mb-1">Capacity</label>
+            <input
+              type="number"
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
+              placeholder="e.g. 300"
+              value={capacity}
+              onChange={e => setCapacity(e.target.value)}
+            />
           </div>
 
           <div>
@@ -172,7 +157,7 @@ export default function AdminEditBandPage({ params }: { params: { id: string } }
             <input
               maxLength={500}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
-              placeholder="https://yourband.com"
+              placeholder="https://venuename.com"
               value={website}
               onChange={e => setWebsite(e.target.value)}
             />
@@ -185,7 +170,7 @@ export default function AdminEditBandPage({ params }: { params: { id: string } }
               <input
                 maxLength={100}
                 className="flex-1 px-2 py-3 bg-transparent text-white placeholder-gray-500 focus:outline-none"
-                placeholder="bandname"
+                placeholder="venuename"
                 value={instagram}
                 onChange={e => setInstagram(e.target.value)}
               />
