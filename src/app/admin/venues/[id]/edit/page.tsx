@@ -98,7 +98,9 @@ export default function AdminEditVenuePage({ params }: { params: { id: string } 
   return (
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-2xl mx-auto">
-        <a href="/admin" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to admin</a>
+        <a href="/admin" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">
+          ← Back to admin
+        </a>
         <h1 className="text-3xl font-bold text-yellow-400 mb-1">Edit Venue</h1>
         <p className="text-gray-400 mb-8">{displayName}</p>
 
