@@ -4,16 +4,7 @@ import { createClient } from '@/lib/supabase/client'
 import Nav from '@/components/Nav'
 import { formatTime, formatMonthShort, formatDayNumber, formatWeekdayShort } from '@/lib/dateUtils'
 
-const UTAH_CITIES = [
-  'Alpine', 'American Fork', 'Bountiful', 'Cedar City', 'Cedar Hills',
-  'Clearfield', 'Cottonwood Heights', 'Draper', 'Eagle Mountain', 'Farmington',
-  'Heber City', 'Herriman', 'Highland', 'Holladay', 'Hyde Park', 'Kaysville',
-  'Layton', 'Lehi', 'Lindon', 'Logan', 'Midvale', 'Millcreek', 'Moab', 'Murray',
-  'North Logan', 'North Salt Lake', 'Ogden', 'Orem', 'Park City', 'Payson',
-  'Pleasant Grove', 'Provo', 'Riverton', 'Roy', 'Salt Lake City', 'Sandy',
-  'Saratoga Springs', 'Smithfield', 'South Jordan', 'Spanish Fork', 'Springville',
-  'St. George', 'Taylorsville', 'West Jordan', 'West Valley City', 'Woods Cross',
-]
+import { UTAH_CITIES } from '@/lib/cities'
 
 const GENRES = ['Rock', 'Pop', 'Hip Hop', 'Country', 'Jazz', 'Metal', 'Folk', 'Electronic', 'R&B', 'Punk', 'Indie', 'Blues']
 

@@ -1,127 +1,93 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { UTAH_CITIES } from '@/lib/cities'
 
-export default function VenueProfilePage() {
+export default function AdminEditVenuePage({ params }: { params: { id: string } }) {
   const supabase = createClient()
   const router = useRouter()
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [profileId, setProfileId] = useState('')
 
   const [displayName, setDisplayName] = useState('')
-  const [bio, setBio] = useState('')
-  const [website, setWebsite] = useState('')
-  const [instagram, setInstagram] = useState('')
   const [address, setAddress] = useState('')
   const [city, setCity] = useState('')
   const [capacity, setCapacity] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
+  const [website, setWebsite] = useState('')
+  const [instagram, setInstagram] = useState('')
   const [showCustomCity, setShowCustomCity] = useState(false)
 
   useEffect(() => {
-    async function loadProfile() {
+    async function load() {
+      const resolvedParams = await Promise.resolve(params)
+      const id = resolvedParams.id
+
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('*')
+        .select('is_admin')
         .eq('id', user.id)
         .single()
 
-      if (profile?.account_type !== 'venue') {
-        router.push('/dashboard')
-        return
-      }
+      if (!profile?.is_admin) { router.push('/dashboard'); return }
 
       const { data: venue } = await supabase
         .from('venues')
-        .select('*')
-        .eq('profile_id', user.id)
+        .select(`*, profiles ( * )`)
+        .eq('id', id)
         .single()
 
-      setDisplayName(profile.display_name || '')
-      setBio(profile.bio || '')
-      setWebsite(profile.website || '')
-      setInstagram(profile.instagram || '')
-      setAvatarUrl(profile.avatar_url || '')
-      setAddress(venue?.address || '')
-      setCity(venue?.city || '')
-      setCapacity(venue?.capacity?.toString() || '')
+      if (!venue) { router.push('/admin'); return }
+
+      setProfileId(venue.profile_id)
+      setDisplayName(venue.profiles?.display_name || '')
+      setAddress(venue.address || '')
+      setCity(venue.city || '')
+      setCapacity(venue.capacity?.toString() || '')
+      setWebsite(venue.profiles?.website || '')
+      setInstagram(venue.profiles?.instagram || '')
       setLoading(false)
     }
-    loadProfile()
+    load()
   }, [])
-
-  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be under 5MB')
-      return
-    }
-
-    setUploading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    const fileExt = file.name.split('.').pop()
-    const filePath = `${user.id}/avatar.${fileExt}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(filePath, file, { upsert: true })
-
-    if (uploadError) {
-      setError(uploadError.message)
-      setUploading(false)
-      return
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(filePath)
-
-    await supabase
-      .from('profiles')
-      .update({ avatar_url: publicUrl })
-      .eq('id', user.id)
-
-    setAvatarUrl(publicUrl)
-    setUploading(false)
-  }
 
   async function handleSave() {
     setSaving(true)
     setError('')
     setSuccess(false)
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    const resolvedParams = await Promise.resolve(params)
+    const id = resolvedParams.id
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ display_name: displayName, bio, website, instagram })
-      .eq('id', user.id)
+      .update({ display_name: displayName, website, instagram })
+      .eq('id', profileId)
 
     const { error: venueError } = await supabase
       .from('venues')
-      .update({ address, city, capacity: capacity ? parseInt(capacity) : null })
-      .eq('profile_id', user.id)
+      .update({
+        address,
+        city,
+        capacity: capacity ? parseInt(capacity) : null,
+      })
+      .eq('id', id)
 
     if (profileError || venueError) {
       setError(profileError?.message || venueError?.message || 'Save failed')
-    } else {
-      setSuccess(true)
+      setSaving(false)
+      return
     }
+
+    setSuccess(true)
     setSaving(false)
+    setTimeout(() => router.push('/admin'), 1500)
   }
 
   if (loading) return (
@@ -133,45 +99,13 @@ export default function VenueProfilePage() {
   return (
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-2xl mx-auto">
-        <a href="/dashboard" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to dashboard</a>
-        <h1 className="text-3xl font-bold text-yellow-400 mb-1">Venue Profile</h1>
-        <p className="text-gray-400 mb-8">How bands and fans will find you</p>
+        <a href="/admin" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">
+          ← Back to admin
+        </a>
+        <h1 className="text-3xl font-bold text-yellow-400 mb-1">Edit Venue</h1>
+        <p className="text-gray-400 mb-8">{displayName}</p>
 
         <div className="space-y-5">
-
-          {/* Avatar upload */}
-          <div className="flex items-center gap-6">
-            <div
-              className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-800 border-2 border-gray-700 cursor-pointer hover:border-yellow-400 transition-colors flex items-center justify-center"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-3xl font-bold text-yellow-400">
-                  {displayName?.[0]?.toUpperCase() || '?'}
-                </span>
-              )}
-            </div>
-            <div>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors text-sm disabled:opacity-50"
-              >
-                {uploading ? 'Uploading...' : 'Upload photo'}
-              </button>
-              <p className="text-gray-600 text-xs mt-1">JPG, PNG up to 5MB</p>
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleAvatarUpload}
-            />
-          </div>
-
           <div>
             <label className="text-gray-400 text-sm block mb-1">
               Venue name
@@ -186,25 +120,11 @@ export default function VenueProfilePage() {
           </div>
 
           <div>
-            <label className="text-gray-400 text-sm block mb-1">
-              About the venue
-              <span className="text-gray-600 text-xs ml-2">{bio.length}/2000</span>
-            </label>
-            <textarea
-              maxLength={2000}
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400 h-32 resize-none"
-              placeholder="Tell bands and fans about your space..."
-              value={bio}
-              onChange={e => setBio(e.target.value)}
-            />
-          </div>
-
-          <div>
             <label className="text-gray-400 text-sm block mb-1">Address</label>
             <input
-              maxLength={300}
+              maxLength={200}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
-              placeholder="123 Main St"
+              placeholder="e.g. 741 S 330 W"
               value={address}
               onChange={e => setAddress(e.target.value)}
             />
@@ -246,11 +166,9 @@ export default function VenueProfilePage() {
           <div>
             <label className="text-gray-400 text-sm block mb-1">Capacity</label>
             <input
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
-              placeholder="e.g. 250"
               type="number"
-              min="1"
-              max="100000"
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
+              placeholder="e.g. 300"
               value={capacity}
               onChange={e => setCapacity(e.target.value)}
             />
@@ -261,7 +179,7 @@ export default function VenueProfilePage() {
             <input
               maxLength={500}
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
-              placeholder="https://yourvenue.com"
+              placeholder="https://venuename.com"
               value={website}
               onChange={e => setWebsite(e.target.value)}
             />
@@ -274,7 +192,7 @@ export default function VenueProfilePage() {
               <input
                 maxLength={100}
                 className="flex-1 px-2 py-3 bg-transparent text-white placeholder-gray-500 focus:outline-none"
-                placeholder="yourvenuename"
+                placeholder="venuename"
                 value={instagram}
                 onChange={e => setInstagram(e.target.value)}
               />
@@ -282,14 +200,14 @@ export default function VenueProfilePage() {
           </div>
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
-          {success && <p className="text-green-400 text-sm">Venue saved!</p>}
+          {success && <p className="text-green-400 text-sm">Saved! Redirecting...</p>}
 
           <button
             onClick={handleSave}
             disabled={saving}
             className="w-full py-3 bg-yellow-400 text-gray-950 font-semibold rounded-lg hover:bg-yellow-300 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save venue'}
+            {saving ? 'Saving...' : 'Save changes'}
           </button>
         </div>
       </div>

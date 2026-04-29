@@ -1,16 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-
-const UTAH_CITIES = [
-  'Alpine', 'American Fork', 'Bountiful', 'Cedar City', 'Cedar Hills',
-  'Clearfield', 'Cottonwood Heights', 'Draper', 'Eagle Mountain', 'Farmington',
-  'Heber City', 'Herriman', 'Highland', 'Holladay', 'Hyde Park', 'Kaysville',
-  'Layton', 'Lehi', 'Lindon', 'Logan', 'Midvale', 'Millcreek', 'Moab', 'Murray',
-  'North Logan', 'North Salt Lake', 'Ogden', 'Orem', 'Park City', 'Payson',
-  'Pleasant Grove', 'Provo', 'Riverton', 'Roy', 'Salt Lake City', 'Sandy',
-  'Saratoga Springs', 'Smithfield', 'South Jordan', 'Spanish Fork', 'Springville',
-  'St. George', 'Taylorsville', 'West Jordan', 'West Valley City', 'Woods Cross',
-]
+import CitySelect from '@/components/CitySelect'
 
 async function createVenue(formData: FormData) {
   'use server'
@@ -87,16 +77,7 @@ export default async function AdminNewVenuePage({
 
             <div>
               <label className="text-gray-400 text-sm block mb-1">City *</label>
-              <select
-                name="city"
-                required
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400"
-              >
-                <option value="">Select a city...</option>
-                {UTAH_CITIES.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+              <CitySelect required />
             </div>
 
             <div>

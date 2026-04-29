@@ -22,7 +22,7 @@ export default function NewEventPage() {
   const [selectedVenue, setSelectedVenue] = useState('')
   const [accountType, setAccountType] = useState('')
   const [coverImageUrl, setCoverImageUrl] = useState('')
-
+  
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
@@ -137,18 +137,20 @@ export default function NewEventPage() {
       return
     }
 
-    // Always check directly from the database — don't rely on state
-    const { data: band } = await supabase
-      .from('bands')
-      .select('id')
-      .eq('profile_id', user.id)
-      .single()
+    // Only auto-link band if user is a band account (not admin)
+    if (accountType === 'band') {
+      const { data: band } = await supabase
+        .from('bands')
+        .select('id')
+        .eq('profile_id', user.id)
+        .single()
 
-    if (band) {
-      await supabase.from('event_bands').insert({
-        event_id: event.id,
-        band_id: band.id,
-      })
+      if (band) {
+        await supabase.from('event_bands').insert({
+          event_id: event.id,
+          band_id: band.id,
+        })
+      }
     }
 
     // Send notifications to followers
