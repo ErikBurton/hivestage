@@ -22,7 +22,7 @@ export default function NewEventPage() {
   const [selectedVenue, setSelectedVenue] = useState('')
   const [accountType, setAccountType] = useState('')
   const [coverImageUrl, setCoverImageUrl] = useState('')
-
+  
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()

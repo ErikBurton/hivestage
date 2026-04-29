@@ -2,10 +2,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { UTAH_CITIES } from '@/lib/cities'
 
 const GENRES = ['Rock', 'Pop', 'Hip Hop', 'Country', 'Jazz', 'Metal', 'Folk', 'Electronic', 'R&B', 'Punk', 'Indie', 'Blues']
 
-import { UTAH_CITIES } from '@/lib/cities'
 
 export default function BandProfilePage() {
   const supabase = createClient()
@@ -24,6 +24,7 @@ export default function BandProfilePage() {
   const [city, setCity] = useState('')
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
   const [avatarUrl, setAvatarUrl] = useState('')
+  const [showCustomCity, setShowCustomCity] = useState(false)
 
   useEffect(() => {
     async function loadProfile() {
@@ -220,14 +221,33 @@ export default function BandProfilePage() {
             <label className="text-gray-400 text-sm block mb-1">City</label>
             <select
               className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400"
-              value={city}
-              onChange={e => setCity(e.target.value)}
+              value={showCustomCity ? 'other' : city}
+              onChange={e => {
+                if (e.target.value === 'other') {
+                  setShowCustomCity(true)
+                  setCity('')
+                } else {
+                  setShowCustomCity(false)
+                  setCity(e.target.value)
+                }
+              }}
             >
               <option value="">Select a city...</option>
               {UTAH_CITIES.map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
+              <option value="other">Other...</option>
             </select>
+
+            {showCustomCity && (
+              <input
+                className="mt-2 w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-500 border border-gray-700 focus:outline-none focus:border-yellow-400"
+                placeholder="Enter city name..."
+                value={city}
+                onChange={e => setCity(e.target.value)}
+                autoFocus
+              />
+            )}
           </div>
 
           <div>
