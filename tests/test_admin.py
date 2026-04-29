@@ -116,3 +116,15 @@ class TestAdminAccess:
         page.goto(f"{BASE_URL}/events/00000000-0000-0000-0000-000000000000")
         page.wait_for_timeout(2000)
         assert "404" in page.content() or "not found" in page.content().lower()
+
+    def test_add_venue_form_city_other_shows_input(self, logged_in_admin):
+        logged_in_admin.goto(f"{BASE_URL}/admin/venues/new")
+        logged_in_admin.select_option('select[name="city"]', "other")
+        assert logged_in_admin.is_visible('input[name="city"]')
+
+
+def test_add_venue_form_city_other_accepts_custom_input(self, logged_in_admin):
+    logged_in_admin.goto(f"{BASE_URL}/admin/venues/new")
+    logged_in_admin.select_option('select[name="city"]', "other")
+    logged_in_admin.fill('input[name="city"]', "Nephi")
+    assert logged_in_admin.input_value('input[name="city"]') == "Nephi"
