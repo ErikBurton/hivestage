@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-
-import { UTAH_CITIES } from '@/lib/cities'
+import CitySelect from '@/components/CitySelect'
 
 async function createVenue(formData: FormData) {
   'use server'
@@ -78,16 +77,7 @@ export default async function AdminNewVenuePage({
 
             <div>
               <label className="text-gray-400 text-sm block mb-1">City *</label>
-              <select
-                name="city"
-                required
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-yellow-400"
-              >
-                <option value="">Select a city...</option>
-                {UTAH_CITIES.map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+              <CitySelect required />
             </div>
 
             <div>
