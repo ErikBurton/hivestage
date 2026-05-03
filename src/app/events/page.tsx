@@ -146,7 +146,7 @@ export default function EventsPage() {
                     <div className="shrink-0 flex flex-col items-end gap-2">
                       {event.cover_image_url && (
                         <div className="w-16 h-16 rounded-lg overflow-hidden">
-                          <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
+                          <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover object-top" />
                         </div>
                       )}
                       {event.ticket_url && !event.is_free && (
