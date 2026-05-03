@@ -156,7 +156,7 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {myEvents && myEvents.length > 0 && (
+        {myEvents && myEvents.length > 0 && !profile?.is_admin && (
           <div>
             <p className="text-gray-500 text-xs font-medium uppercase tracking-widest mb-4">My Events</p>
             <div className="space-y-3">
