@@ -83,9 +83,9 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
         )}
 
         <div className="bg-gray-900 rounded-2xl p-8 mb-6">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <h1 className="text-3xl font-bold">{event.title}</h1>
-            <div className="flex items-center gap-2 shrink-0">
+          <div className="mb-4">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-3">{event.title}</h1>
+            <div className="flex items-center gap-2 flex-wrap">
               <AddToCalendarButton
                 title={event.title}
                 date={event.event_date}
