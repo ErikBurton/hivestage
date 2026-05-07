@@ -73,12 +73,12 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   return (
     <main className="min-h-screen bg-gray-950 text-white">
       <Nav />
-      <div className="max-w-2xl mx-auto p-8">
+      <div className="max-w-3xl mx-auto p-8">
         <a href="/events" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to events</a>
 
         {event.cover_image_url && (
-          <div className="relative w-full rounded-2xl overflow-hidden mb-6">
-            <img src={event.cover_image_url} alt={event.title} className="w-full h-auto" />
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden mb-6">
+            <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
           </div>
         )}
 
