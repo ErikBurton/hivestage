@@ -1,5 +1,5 @@
 export const UTAH_CITIES = [
-  'Alpine', 'American Fork', 'Bountiful', 'Cedar City', 'Cedar Hills',
+  'Alpine', 'American Fork', 'Bluffdale', 'Bountiful', 'Cedar City', 'Cedar Hills',
   'Clearfield', 'Cottonwood Heights', 'Draper', 'Farmington', 'Herriman',
   'Highland', 'Kaysville', 'Layton', 'Lehi', 'Logan', 'Midvale',
   'Millcreek', 'Murray', 'North Logan', 'North Salt Lake', 'Ogden', 'Orem',
