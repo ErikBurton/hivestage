@@ -22,6 +22,7 @@ export default function NewEventPage() {
   const [selectedVenue, setSelectedVenue] = useState('')
   const [accountType, setAccountType] = useState('')
   const [coverImageUrl, setCoverImageUrl] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
   
   useEffect(() => {
     async function load() {
@@ -35,6 +36,7 @@ export default function NewEventPage() {
         .single()
 
       setAccountType(profile?.account_type || '')
+      setIsAdmin(profile?.is_admin || false)
 
       const { data: venueList } = await supabase
         .from('venues')
@@ -138,7 +140,7 @@ export default function NewEventPage() {
     }
 
     // Only auto-link band if user is a band account (not admin)
-    if (accountType === 'band') {
+    if (accountType === 'band' && !isAdmin) {
       const { data: band } = await supabase
         .from('bands')
         .select('id')
