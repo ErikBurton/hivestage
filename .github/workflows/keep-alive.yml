@@ -1,5 +1,6 @@
 name: Keep Supabase Test Project Alive
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 12 * * *'
 jobs:
@@ -8,8 +9,6 @@ jobs:
     steps:
       - name: Ping test Supabase project
         run: |
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.TEST_NEXT_PUBLIC_SUPABASE_URL }}/rest/v1/" \
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             "${{ secrets.TEST_NEXT_PUBLIC_SUPABASE_URL }}/rest/v1/" \
             -H "apikey: ${{ secrets.TEST_NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
