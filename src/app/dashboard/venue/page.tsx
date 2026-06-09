@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { UTAH_CITIES } from '@/lib/cities'
+import VenueClaimSearch from '@/components/VenueClaimSearch'
 
 export default function VenueProfilePage() {
   const supabase = createClient()
@@ -23,6 +24,7 @@ export default function VenueProfilePage() {
   const [capacity, setCapacity] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
   const [showCustomCity, setShowCustomCity] = useState(false)
+  const [hasVenue, setHasVenue] = useState(false)
 
   useEffect(() => {
     async function loadProfile() {
@@ -54,6 +56,7 @@ export default function VenueProfilePage() {
       setAddress(venue?.address || '')
       setCity(venue?.city || '')
       setCapacity(venue?.capacity?.toString() || '')
+      setHasVenue(!!venue)
       setLoading(false)
     }
     loadProfile()
@@ -134,6 +137,7 @@ export default function VenueProfilePage() {
     <main className="min-h-screen bg-gray-950 text-white p-8">
       <div className="max-w-2xl mx-auto">
         <a href="/dashboard" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to dashboard</a>
+        {!hasVenue && <VenueClaimSearch />}
         <h1 className="text-3xl font-bold text-yellow-400 mb-1">Venue Profile</h1>
         <p className="text-gray-400 mb-8">How bands and fans will find you</p>
 

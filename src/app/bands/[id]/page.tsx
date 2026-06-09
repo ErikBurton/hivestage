@@ -45,7 +45,7 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
         <a href="/bands" className="text-gray-500 text-sm hover:text-yellow-400 mb-6 inline-block">← Back to bands</a>
 
         <div className="bg-gray-900 rounded-2xl p-8 mb-6">
-          <div className="flex items-start gap-6">
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
             <div className="w-20 h-20 rounded-2xl overflow-hidden bg-yellow-400 flex items-center justify-center text-gray-950 text-3xl font-bold shrink-0">
               {band.profiles?.avatar_url ? (
                 <img src={band.profiles.avatar_url} alt={band.profiles.display_name} className="w-full h-full object-cover" />
@@ -54,8 +54,8 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
               )}
             </div>
             <div className="flex-1">
-              <div className="flex items-start justify-between gap-4">
-                <h1 className="text-3xl font-bold">{band.profiles?.display_name}</h1>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <h1 className="text-2xl sm:text-3xl font-bold">{band.profiles?.display_name}</h1>
                 <FollowButton bandId={band.id} />
               </div>
               {band.city && <p className="text-gray-400 mt-1">📍 {band.city}, Utah</p>}
@@ -97,7 +97,7 @@ export default async function BandProfilePage({ params }: { params: Promise<{ id
                       <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
                     </div>
                   )}
-                  <div className="p-5 flex items-center justify-between gap-4">
+                  <div className="p-4 flex items-center justify-between gap-3 flex-wrap">
                     <div>
                       <p className="font-semibold">{event.title}</p>
                       <div className="flex gap-3 mt-2 text-sm text-gray-500 flex-wrap">
