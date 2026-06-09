@@ -161,3 +161,42 @@ export async function sendNewEventNotification(
     `,
   })
 }
+
+export async function sendVenueClaimNotification(
+  venueName: string,
+  claimantName: string,
+  claimantEmail: string,
+  venueId: string,
+  newProfileId: string,
+) {
+  await resend.emails.send({
+    from: 'HiveStage <hello@hivestage.live>',
+    to: 'hello@hivestage.live',
+    subject: `Venue claim request: ${venueName}`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <body style="margin:0;padding:0;background:#030712;font-family:sans-serif;">
+          <div style="max-width:600px;margin:0 auto;padding:40px 24px;">
+            <h1 style="color:#facc15;">HiveStage</h1>
+            <div style="background:#111827;border-radius:16px;padding:32px;margin-bottom:24px;">
+              <h2 style="color:#f9fafb;">Venue Claim Request</h2>
+              <p style="color:#9ca3af;"><strong style="color:#f9fafb;">${claimantName}</strong> (${claimantEmail}) wants to claim:</p>
+              <p style="color:#facc15;font-size:20px;font-weight:600;">${venueName}</p>
+              <p style="color:#9ca3af;">To approve, run this SQL in production Supabase:</p>
+              <pre style="background:#030712;color:#4ade80;padding:16px;border-radius:8px;font-size:13px;overflow-x:auto;">
+update public.venues
+set profile_id = '${newProfileId}'
+where id = '${venueId}';
+
+update public.profiles
+set account_type = 'venue'
+where id = '${newProfileId}';</pre>
+              <p style="color:#6b7280;font-size:13px;">Venue ID: ${venueId}<br/>New profile ID: ${newProfileId}</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
+  })
+}
